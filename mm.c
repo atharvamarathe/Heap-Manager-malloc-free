@@ -7,9 +7,8 @@
 #include <limits.h>
 #include <stdint.h>
 #include "mm.h"
-#define METABLOCK_SIZE sizeof(meta_data_block_)
-#define BIN_SIZE 16
-#define NUMBER_OF_BINS_PER_PAGE SYSTEM_PAGE_SIZE/(BIN_SIZE+METABLOCK_SIZE)
+
+
 
 static size_t SYSTEM_PAGE_SIZE = 0;
 
@@ -218,6 +217,58 @@ int mergeBins(meta_data_block m1) {
     return 1;
     
 }
+
+void Free(void *ptr) {
+
+    meta_data_block mptr;
+    mptr = ((meta_data_block)ptr)-1;
+    if(mptr==NULL) {
+        perror("Can't free NULL Pointer");
+        return;
+    }
+
+    mptr->isFree = TRUE;
+    if(isPageEmpty(pageList[pageCount-1].head) == TRUE) {
+        freePages(pageList[pageCount-1].head,1);
+        pageList[pageCount-1].head = NULL;
+        pageList[pageCount-1].avaiableSize = 0;
+        pageCount--;
+        return;
+    }
+
+    if(mptr->nextBlock && mptr->nextBlock->isFree == TRUE) {
+
+        mergeBins(mptr);
+        int nextBlocksize = mptr->nextBlock->blockSize;
+        mptr->blockSize += METABLOCK_SIZE + nextBlocksize;
+    }
+
+    if(mptr->prevBlock && mptr->prevBlock->isFree == TRUE) {
+        meta_data_block prevblock=mptr->prevBlock;
+        int prevBlocksize = mptr->prevBlock->blockSize;
+        mergeBins(mptr->prevBlock);
+       prevblock->blockSize += METABLOCK_SIZE + prevBlocksize;
+    }
+        
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
