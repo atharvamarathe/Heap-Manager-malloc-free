@@ -6,6 +6,29 @@
 #define TRUE 1
 #define FALSE 0
 #define MAX_PAGES 5
+#define METABLOCK_SIZE sizeof(meta_data_block_)
+#define BIN_SIZE 16
+#define NUMBER_OF_BINS_PER_PAGE SYSTEM_PAGE_SIZE/(BIN_SIZE+METABLOCK_SIZE)
+#define NUM_OF_CLASSES 17
+#define CLASS_4      0
+#define CLASS_8      1
+#define CLASS_16     2
+#define CLASS_24     3
+#define CLASS_32     4
+#define CLASS_40     5
+#define CLASS_48     6
+#define CLASS_56     7
+#define CLASS_64     8
+#define CLASS_72     9
+#define CLASS_80     10
+#define CLASS_88     11
+#define CLASS_96     12
+#define CLASS_104    13
+#define CLASS_112    14
+#define CLASS_120    15
+#define CLASS_128    16
+
+static sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
 typedef struct meta_data_block_ {
 
