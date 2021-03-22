@@ -230,7 +230,7 @@ void Free(void *ptr) {
     }
 
     mptr->isFree = TRUE;
-    if(isPageEmpty(pageList[pageCount-1].head) == TRUE) {
+    if(isPageEmpty(*(pageList[pageCount-1].head)) == TRUE) {
         freePages(pageList[pageCount-1].head,1);
         pageList[pageCount-1].head = NULL;
         pageList[pageCount-1].avaiableSize = 0;

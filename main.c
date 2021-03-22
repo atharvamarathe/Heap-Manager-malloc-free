@@ -34,7 +34,8 @@ int main() {
     d->c=444;
     d->d=2222;
     printf("the value of the struct is %d %d %d and %d\n",d->a,d->b,d->c,d->d);
-
+    Free(d);
+    Free(a);
     return 0;
  }
 
