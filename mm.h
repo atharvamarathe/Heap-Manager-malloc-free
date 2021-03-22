@@ -76,7 +76,7 @@ void* Malloc(uint32_t size);
 void createBinsList(meta_data_block *head);
 int splitBins(meta_data_block m1,int size);
 int mergeBins(meta_data_block m1);
-meta_data_block getFreeBlock(meta_data_block head);
+meta_data_block getFreeBlock(meta_data_block *head);
 // void freeDatablock(data_block d1);
 // void pageInit(data_block *d1);
 static data_block d1;

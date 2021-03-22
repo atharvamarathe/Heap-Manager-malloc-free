@@ -9,7 +9,6 @@
 #include "mm.h"
 
 
-
 static size_t SYSTEM_PAGE_SIZE = 0;
 
 
@@ -54,6 +53,8 @@ int isPageEmpty(meta_data_block head) {
     return TRUE;
 
 }
+
+
 
 
 void mmInit() {
@@ -215,8 +216,9 @@ int mergeBins(meta_data_block m1) {
     a->prevBlock = m1;
     
     return 1;
-    
 }
+
+
 
 void Free(void *ptr) {
 
@@ -251,24 +253,6 @@ void Free(void *ptr) {
     }
         
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
