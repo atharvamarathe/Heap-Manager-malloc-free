@@ -60,8 +60,8 @@ int isPageEmpty(meta_data_block head) {
 void mmInit() {
 
     SYSTEM_PAGE_SIZE = getpagesize();
-    printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
     meta_data_block a;
+    printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
     a = (meta_data_block)getPages(1);
     if(!(a)) { 
         perror("getPages failed \n");
@@ -256,7 +256,53 @@ void Free(void *ptr) {
 
 
 
+void initSizeClassList() {
 
+    for(int j=0;j<NUM_OF_CLASSES;j++) {
+
+        *(sizeClassList[j][0].head) = (meta_data_block)getPages(1);
+        sizeClassList[j][0].avaiableSize = SYSTEM_PAGE_SIZE;
+    }
+    for(int i=0;i<NUM_OF_CLASSES;i++) {
+
+        for(int j=1;j<MAX_PAGES;j++) {
+                sizeClassList[i][j].head = NULL;
+                sizeClassList[i][j].avaiableSize = -1;
+        }
+    }
+
+    createSizeClassBinsList(sizeClassList[0][0].head,CLASS4_SIZE);
+    for(int i=0,j=8;i<NUM_OF_CLASSES-1;i++,j+=8) {
+        createSizeClassBinsList(sizeClassList[i][0].head,j);
+    }
+
+}
+
+
+
+void createSizeClassBinsList(meta_data_block *head,int binSize) {
+
+
+    if(head == NULL)
+        return;
+
+    // mmInit();
+    int binNum;
+    binNum = SYSTEM_PAGE_SIZE/(binSize+METABLOCK_SIZE);
+    meta_data_block a,prev=NULL;
+    a = *head;
+    for(int i=0;i<binSize-1;i++) {
+        a->prevBlock = prev;
+        a->blockSize=binSize;
+        a->nextBlock =(meta_data_block)(((char *)a)+METABLOCK_SIZE+binSize);
+        prev = a;
+        a = a-> nextBlock;
+    }
+    //last block
+    a->prevBlock = prev;
+    a->blockSize=binSize;
+    a->nextBlock = NULL;
+}
 
 
 

@@ -28,6 +28,24 @@
 #define CLASS_120    15
 #define CLASS_128    16
 
+#define CLASS4_SIZE      4
+#define CLASS8_SIZE      8
+#define CLASS16_SIZE     16
+#define CLASS24_SIZE     24
+#define CLASS32_SIZE     32
+#define CLASS40_SIZE     40
+#define CLASS48_SIZE     48
+#define CLASS56_SIZE     56
+#define CLASS64_SIZE     64
+#define CLASS72_SIZE     72
+#define CLASS80_SIZE     80
+#define CLASS88_SIZE     88
+#define CLASS96_SIZE     96
+#define CLASS104_SIZE    104
+#define CLASS112_SIZE    112
+#define CLASS120_SIZE    120
+#define CLASS128_SIZE    128
+
 
 typedef struct meta_data_block_ {
 
@@ -77,6 +95,8 @@ int splitBins(meta_data_block m1,int size);
 int mergeBins(meta_data_block m1);
 meta_data_block getFreeBlock(meta_data_block *head);
 void Free(void *ptr);
+void createSizeClassBinsList(meta_data_block *head,int binSize);
+void initSizeClassList();
 // void freeDatablock(data_block d1);
 // void pageInit(data_block *d1);
 static data_block d1;
@@ -84,7 +104,7 @@ static page_list pageList[MAX_PAGES];
 static size_t SYSTEM_PAGE_SIZE;
 static int pageCount=0;
 static int currentFreePage=0;
-static meta_data_block sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
+static page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
 
 #endif
