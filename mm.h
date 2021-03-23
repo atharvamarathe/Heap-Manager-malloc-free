@@ -80,7 +80,7 @@ typedef data_block_ * data_block;
 typedef struct page_list {
 
     meta_data_block *head;
-    uint32_t avaiableSize;
+    uint32_t availableSize;
 }page_list;
 
 // void mm_init(data_block *d1);

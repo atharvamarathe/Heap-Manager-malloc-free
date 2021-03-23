@@ -72,7 +72,7 @@ void mmInit() {
         return;
     //TODO: Function to handle when all pages are exhausted
     pageList[pageCount-1].head =&a;
-    pageList[pageCount-1].avaiableSize = SYSTEM_PAGE_SIZE - NUMBER_OF_BINS_PER_PAGE*METABLOCK_SIZE;
+    pageList[pageCount-1].availableSize = SYSTEM_PAGE_SIZE - NUMBER_OF_BINS_PER_PAGE*METABLOCK_SIZE;
     createBinsList(pageList[pageCount-1].head);
     //    printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
     // printf("page 1 = %p\n",*d1);
@@ -87,7 +87,7 @@ void initPageList() {
 
     for(int i = 0;i<MAX_PAGES;i++) {
         pageList[i].head = NULL;
-        pageList[i].avaiableSize = 0;
+        pageList[i].availableSize = 0;
     }
 }
 
@@ -95,10 +95,6 @@ meta_data_block getFreeBlock(meta_data_block *head) {
 
     meta_data_block a;
     a= *head;
-    if(head == NULL)
-            printf("oh no  no\n");
-    printf("HEllo\n");
-    printf("the value %p\n",a->nextBlock);
     while(a->nextBlock != NULL && a->isFree != TRUE) {
         a = a->nextBlock;
     }
@@ -119,7 +115,7 @@ void* Malloc(uint32_t size) {
         bins_required = size / BIN_SIZE;
         padding = size % BIN_SIZE;
         int j=0;
-        while(j< MAX_PAGES && pageList[j].avaiableSize < size) {
+        while(j< MAX_PAGES && pageList[j].availableSize < size) {
             j++;
         }
         // if(j == MAX_PAGES)
@@ -213,8 +209,7 @@ int mergeBins(meta_data_block m1) {
     a = m1->nextBlock;
     // m1->blockSize +=  METABLOCK_SIZE + a ->blockSize;
     m1->nextBlock = a->nextBlock;
-    a->prevBlock = m1;
-    
+    a->nextBlock->prevBlock = m1;
     return 1;
 }
 
@@ -233,7 +228,7 @@ void Free(void *ptr) {
     if(isPageEmpty(*(pageList[pageCount-1].head)) == TRUE) {
         freePages(pageList[pageCount-1].head,1);
         pageList[pageCount-1].head = NULL;
-        pageList[pageCount-1].avaiableSize = 0;
+        pageList[pageCount-1].availableSize = 0;
         pageCount--;
         return;
     }
@@ -261,13 +256,13 @@ void initSizeClassList() {
     for(int j=0;j<NUM_OF_CLASSES;j++) {
 
         *(sizeClassList[j][0].head) = (meta_data_block)getPages(1);
-        sizeClassList[j][0].avaiableSize = SYSTEM_PAGE_SIZE;
+        sizeClassList[j][0].availableSize = SYSTEM_PAGE_SIZE;
     }
     for(int i=0;i<NUM_OF_CLASSES;i++) {
 
         for(int j=1;j<MAX_PAGES;j++) {
                 sizeClassList[i][j].head = NULL;
-                sizeClassList[i][j].avaiableSize = -1;
+                sizeClassList[i][j].availableSize = -1;
         }
     }
 
