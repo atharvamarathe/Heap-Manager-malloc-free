@@ -2,10 +2,8 @@
 #define MM_H
 
 #include <stdint.h>
-#include "sizeclasses.h"
 #define TRUE 1
 #define FALSE 0
-#define MAX_PAGES 5
 #define METABLOCK_SIZE sizeof(meta_data_block_)
 #define BIN_SIZE 16
 #define NUMBER_OF_BINS_PER_PAGE SYSTEM_PAGE_SIZE/(BIN_SIZE+METABLOCK_SIZE)
@@ -40,12 +38,6 @@ typedef data_block_ * data_block;
 
 // }page_list;
 
-typedef struct page_list {
-
-    meta_data_block *head;
-    uint32_t availableSize;
-}page_list;
-
 // void mm_init(data_block *d1);
 int isPageEmpty(meta_data_block head);
 void * getPages(int units);
@@ -62,12 +54,11 @@ void createSizeClassBinsList(meta_data_block *head,int binSize);
 void initSizeClassList();
 // void freeDatablock(data_block d1);
 // void pageInit(data_block *d1);
-static data_block d1;
-static page_list pageList[MAX_PAGES];
+// static data_block d1;
+static size_t SYSTEM_PAGE_SIZE = 0;
 static size_t SYSTEM_PAGE_SIZE;
 static int pageCount=0;
 static int currentFreePage=0;
-static page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
 
 #endif

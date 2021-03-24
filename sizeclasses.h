@@ -1,14 +1,14 @@
 #ifndef SIZECLASSES_H
 #define SIZECLASSES_H
 
-
+#include "mm.h"
 #define STRINGIFY(a,b) a ## b
 #define GETCLASSINDEX(a) STRINGIFY(CLASS_,a)
+#define MAX_PAGES 5
 
 // #define STRINGIFY(a,b) a ## b
 // #define GETCLASS_SIZE(a,b) STRINGIFY(a,b)
 // #define GET_CLASS_SIZE(a) GETCLASS_SIZE(SIZECLASS,a)  
-
 #define NUM_OF_CLASSES 42
 //  __________________________________________________________________________
 //  |  | CLASS-NAME  |   INDEX_OF_PAGE_LIST  | Default no of Pages Allocated |  
@@ -57,7 +57,7 @@
 #define CLASS_1024              41          //              10               |
 //---------------------------------------------------------------------------|
 
-
+#define TOTAL_BINS_IN_CLASS(no_of_pages,class_size)  (no_of_pages*SYSTEM_PAGE_SIZE)/(METABLOCK_SIZE+class_size)
 
 #define SIZECLASS4      4
 #define SIZECLASS8      8
@@ -77,5 +77,12 @@
 #define SIZECLASS120    120
 #define SIZECLASS128    128
 
+typedef struct page_list {
+
+    meta_data_block *head;
+    uint32_t availableSize;
+}page_list;
+static page_list pageList[MAX_PAGES];
+static page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
 #endif

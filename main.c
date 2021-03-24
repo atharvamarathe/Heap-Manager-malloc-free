@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mm.h"
-
+#include "sizeclasses.h"
 
 typedef struct buf {
     int a,b,c,d;

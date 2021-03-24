@@ -6,10 +6,9 @@
 #include <error.h>
 #include <limits.h>
 #include <stdint.h>
-#include "mm.h"
+#include "sizeclasses.h"
+// #include "mm.h"
 
-
-static size_t SYSTEM_PAGE_SIZE = 0;
 
 
 void * getPages(int units) {
@@ -265,7 +264,7 @@ void initSizeClassList() {
     }
     for(int i=0;i<MAX_PAGES;i++) {
 
-        *(sizeClassList[NUM_OF_CLASSES-1][i].head = (meta_data_block)getPages(2));
+        *(sizeClassList[NUM_OF_CLASSES-1][i].head) = (meta_data_block)getPages(2);
         sizeClassList[NUM_OF_CLASSES-1][i].availableSize = 2*SYSTEM_PAGE_SIZE;
     }
     // for(int i=0;i<NUM_OF_CLASSES;i++) {
