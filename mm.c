@@ -253,20 +253,30 @@ void Free(void *ptr) {
 
 void initSizeClassList() {
 
-    for(int j=0;j<NUM_OF_CLASSES;j++) {
+    for(int j=0;j<NUM_OF_CLASSES-1;j++) {
 
-        *(sizeClassList[j][0].head) = (meta_data_block)getPages(1);
-        sizeClassList[j][0].availableSize = SYSTEM_PAGE_SIZE;
-    }
-    for(int i=0;i<NUM_OF_CLASSES;i++) {
+        for(int i=0;i<MAX_PAGES;i++) {
 
-        for(int j=1;j<MAX_PAGES;j++) {
-                sizeClassList[i][j].head = NULL;
-                sizeClassList[i][j].availableSize = -1;
+            *(sizeClassList[j][i].head) = (meta_data_block)getPages(1);
+            sizeClassList[j][i].availableSize = SYSTEM_PAGE_SIZE;
+
+
         }
     }
+    for(int i=0;i<MAX_PAGES;i++) {
 
-    createSizeClassBinsList(sizeClassList[0][0].head,CLASS4_SIZE);
+        *(sizeClassList[NUM_OF_CLASSES-1][i].head = (meta_data_block)getPages(2));
+        sizeClassList[NUM_OF_CLASSES-1][i].availableSize = 2*SYSTEM_PAGE_SIZE;
+    }
+    // for(int i=0;i<NUM_OF_CLASSES;i++) {
+
+    //     for(int j=1;j<MAX_PAGES;j++) {
+    //             sizeClassList[i][j].head = NULL;
+    //             sizeClassList[i][j].availableSize = -1;
+    //     }
+    // }
+
+    createSizeClassBinsList(sizeClassList[0][0].head,SIZECLASS4);
     for(int i=0,j=8;i<NUM_OF_CLASSES-1;i++,j+=8) {
         createSizeClassBinsList(sizeClassList[i][0].head,j);
     }

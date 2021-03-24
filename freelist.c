@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "mm.h"
 
-#define FREE_LIST_SIZE 30
+#define FREE_LIST_SIZE 100
 
 typedef struct free_list{
 
@@ -28,6 +28,13 @@ void initFreeList(free_list *head) {
 
 
 void removeBlockfromFreeList(free_list *head,meta_data_block ptr) {
+
+    
+}
+
+
+void insertBlocktoFreeList() {
+
 
     ;
 }

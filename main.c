@@ -34,8 +34,10 @@ int main() {
     d->c=444;
     d->d=2222;
     printf("the value of the struct is %d %d %d and %d\n",d->a,d->b,d->c,d->d);
+    printf("The value of class 16 is : %d\n",GETCLASSINDEX(16));
     Free(d);
     Free(a);
+    
     return 0;
  }
 
