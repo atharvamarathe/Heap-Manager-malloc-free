@@ -3,12 +3,14 @@
 #include "sizeclasses.h"
 
 
+
 int classSizeArray[NUM_OF_CLASSES] = {
 
     4,8,16,24,32,40,48,56,64,72,80,88,96,104,112,120,128,136,144,160,176,184,192,208,224,240,256,272,288,312,336,368,408,448,480,512,576,640,704,768,896,1024
 };
 
 void initSizeClassList() {
+
 
     for(int j=0;j<NUM_OF_CLASSES-1;j++) {
 
@@ -66,6 +68,7 @@ void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages) 
     for(int i=0;i<binSize-1;i++) {
         a->prevBlock = prev;
         a->blockSize=binSize;
+        a->isFree = TRUE;
         a->nextBlock =(meta_data_block)(((char *)a)+METABLOCK_SIZE+binSize);
         prev = a;
         a = a-> nextBlock;
@@ -73,6 +76,7 @@ void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages) 
     //last block
     a->prevBlock = prev;
     a->blockSize=binSize;
+    a->isFree = TRUE;
     a->nextBlock = NULL;
 }
 

@@ -72,6 +72,7 @@ void initSizeClassList();
 void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages);
 
 extern int classSizeArray[NUM_OF_CLASSES];
+// extern int isInit;
 static page_list pageList[MAX_PAGES];
 static page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
