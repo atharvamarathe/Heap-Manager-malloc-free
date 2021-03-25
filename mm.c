@@ -71,7 +71,7 @@ void mmInit() {
         return;
     //TODO: Function to handle when all pages are exhausted
     pageList[pageCount-1].head =&a;
-    pageList[pageCount-1].availableSize = SYSTEM_PAGE_SIZE - NUMBER_OF_BINS_PER_PAGE*METABLOCK_SIZE;
+    pageList[pageCount-1].availableBins = SYSTEM_PAGE_SIZE - NUMBER_OF_BINS_PER_PAGE*METABLOCK_SIZE;
     createBinsList(pageList[pageCount-1].head);
     //    printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
     // printf("page 1 = %p\n",*d1);
@@ -86,7 +86,7 @@ void initPageList() {
 
     for(int i = 0;i<MAX_PAGES;i++) {
         pageList[i].head = NULL;
-        pageList[i].availableSize = 0;
+        pageList[i].availableBins = 0;
     }
 }
 
@@ -114,7 +114,7 @@ void* Malloc(uint32_t size) {
         bins_required = size / BIN_SIZE;
         padding = size % BIN_SIZE;
         int j=0;
-        while(j< MAX_PAGES && pageList[j].availableSize < size) {
+        while(j< MAX_PAGES && pageList[j].availableBins < size) {
             j++;
         }
         // if(j == MAX_PAGES)
@@ -143,6 +143,7 @@ void* Malloc(uint32_t size) {
     }
     return NULL;
 }
+
 
 
 
@@ -227,7 +228,7 @@ void Free(void *ptr) {
     if(isPageEmpty(*(pageList[pageCount-1].head)) == TRUE) {
         freePages(pageList[pageCount-1].head,1);
         pageList[pageCount-1].head = NULL;
-        pageList[pageCount-1].availableSize = 0;
+        pageList[pageCount-1].availableBins = 0;
         pageCount--;
         return;
     }
@@ -247,79 +248,5 @@ void Free(void *ptr) {
     }
         
 }
-
-
-
-void initSizeClassList() {
-
-    for(int j=0;j<NUM_OF_CLASSES-1;j++) {
-
-        for(int i=0;i<MAX_PAGES;i++) {
-
-            *(sizeClassList[j][i].head) = (meta_data_block)getPages(1);
-            sizeClassList[j][i].availableSize = SYSTEM_PAGE_SIZE;
-
-
-        }
-    }
-    for(int i=0;i<MAX_PAGES;i++) {
-
-        *(sizeClassList[NUM_OF_CLASSES-1][i].head) = (meta_data_block)getPages(2);
-        sizeClassList[NUM_OF_CLASSES-1][i].availableSize = 2*SYSTEM_PAGE_SIZE;
-    }
-    // for(int i=0;i<NUM_OF_CLASSES;i++) {
-
-    //     for(int j=1;j<MAX_PAGES;j++) {
-    //             sizeClassList[i][j].head = NULL;
-    //             sizeClassList[i][j].availableSize = -1;
-    //     }
-    // }
-
-    createSizeClassBinsList(sizeClassList[0][0].head,SIZECLASS4);
-    for(int i=0,j=8;i<NUM_OF_CLASSES-1;i++,j+=8) {
-        createSizeClassBinsList(sizeClassList[i][0].head,j);
-    }
-
-}
-
-
-
-void createSizeClassBinsList(meta_data_block *head,int binSize) {
-
-
-    if(head == NULL)
-        return;
-
-    // mmInit();
-    int binNum;
-    binNum = SYSTEM_PAGE_SIZE/(binSize+METABLOCK_SIZE);
-    meta_data_block a,prev=NULL;
-    a = *head;
-    for(int i=0;i<binSize-1;i++) {
-        a->prevBlock = prev;
-        a->blockSize=binSize;
-        a->nextBlock =(meta_data_block)(((char *)a)+METABLOCK_SIZE+binSize);
-        prev = a;
-        a = a-> nextBlock;
-    }
-    //last block
-    a->prevBlock = prev;
-    a->blockSize=binSize;
-    a->nextBlock = NULL;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

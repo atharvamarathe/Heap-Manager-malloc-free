@@ -6,6 +6,7 @@
 #define GETCLASSINDEX(a) STRINGIFY(CLASS_,a)
 #define MAX_PAGES 5
 
+#define CLASS_SIZE_LIMIT 1024
 // #define STRINGIFY(a,b) a ## b
 // #define GETCLASS_SIZE(a,b) STRINGIFY(a,b)
 // #define GET_CLASS_SIZE(a) GETCLASS_SIZE(SIZECLASS,a)  
@@ -59,29 +60,18 @@
 
 #define TOTAL_BINS_IN_CLASS(no_of_pages,class_size)  (no_of_pages*SYSTEM_PAGE_SIZE)/(METABLOCK_SIZE+class_size)
 
-#define SIZECLASS4      4
-#define SIZECLASS8      8
-#define SIZECLASS16     16
-#define SIZECLASS24     24
-#define SIZECLASS32     32
-#define SIZECLASS40     40
-#define SIZECLASS48     48
-#define SIZECLASS56     56
-#define SIZECLASS64     64
-#define SIZECLASS72     72
-#define SIZECLASS80     80
-#define SIZECLASS88     88
-#define SIZECLASS96     96
-#define SIZECLASS104    104
-#define SIZECLASS112    112
-#define SIZECLASS120    120
-#define SIZECLASS128    128
-
 typedef struct page_list {
 
     meta_data_block *head;
-    uint32_t availableSize;
+    uint32_t availableBins;
+    uint32_t class_size;
 }page_list;
+
+
+void initSizeClassList();
+void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages);
+
+extern int classSizeArray[NUM_OF_CLASSES];
 static page_list pageList[MAX_PAGES];
 static page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 

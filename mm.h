@@ -50,8 +50,6 @@ int splitBins(meta_data_block m1,int size);
 int mergeBins(meta_data_block m1);
 meta_data_block getFreeBlock(meta_data_block *head);
 void Free(void *ptr);
-void createSizeClassBinsList(meta_data_block *head,int binSize);
-void initSizeClassList();
 // void freeDatablock(data_block d1);
 // void pageInit(data_block *d1);
 // static data_block d1;
