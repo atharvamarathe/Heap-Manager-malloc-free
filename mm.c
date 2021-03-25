@@ -7,7 +7,10 @@
 #include <limits.h>
 #include <stdint.h>
 #include "sizeclasses.h"
+#include "freelist.h"
 // #include "mm.h"
+
+
 
 
 
@@ -247,6 +250,60 @@ void Free(void *ptr) {
        prevblock->blockSize += METABLOCK_SIZE + prevBlocksize;
     }
         
+}
+
+
+void*  myMalloc(size_t bytes) {
+
+    static int isInit = FALSE;
+
+    if(isInit == FALSE) {
+
+        initSizeClassList();
+        initFreeList(&freeList);
+        isInit = TRUE;
+        
+    }
+
+    if(bytes <= 0) {
+
+        // perror("no of bytes cannot be negative or zero");
+        return NULL;
+    }
+
+    if(bytes < CLASS_SIZE_LIMIT) {
+
+        if(freeList.rear != -1 && freeList.list[0].blockPtr != NULL) {
+
+        // free-list not empty
+            sortFreeList(&freeList);
+            int j=0;
+            while(j<FREE_LIST_SIZE && bytes < freeList.list[j].blockSize)
+                j++;
+            if(j < FREE_LIST_SIZE) {
+
+                meta_data_block m1;
+                m1 = freeList.list[j].blockPtr;
+                deleteBlockfromFreeList(&freeList,freeList.list[j].blockSize,m1);
+                return (void *)(m1+1);
+            }
+        }
+        int i=0;
+        while(bytes < classSizeArray[i])
+            i++;
+        meta_data_block ptr;
+        int iter = 0;
+        while(iter<MAX_PAGES && sizeClassList[i][iter].availableBins < 1)
+            iter++;
+        if(iter >= MAX_PAGES)
+            ;//do something
+        ptr = getFreeBlock(sizeClassList[i][iter].head);
+        ptr->isFree = FALSE;
+
+        return (void *)(ptr+1);
+    }
+
+    return NULL;
 }
 
 
