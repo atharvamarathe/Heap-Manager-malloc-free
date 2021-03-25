@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <error.h>
 
+
 void initFreeList(free_list *l1) {
 
     l1->size = FREE_LIST_SIZE;
@@ -108,13 +109,13 @@ void heapifyFreeList(free_list *l1,int i) {
 }
 
 
-int deleteBlockfromFreeList(free_list *l1, int size) {
+int deleteBlockfromFreeList(free_list *l1,int size , meta_data_block m1) {
 
     if(!l1 || l1->list== NULL) {
         return INT_MIN;
     }
     int i=0;
-    while(l1->list[i].blockSize != size) 
+    while(i < FREE_LIST_SIZE && l1->list[i].blockSize != size && l1->list[i].blockPtr != m1) 
         i++;
     if(i>= FREE_LIST_SIZE) {
         // perror("data block  with the given size not present");
@@ -135,7 +136,7 @@ int sortFreeList(free_list *l1) {
         return INT_MIN;
 
     int i;
-
+//TODO: chuklay , infinte loop madhe jael. Correct it
     for(i=0;i>=0;i++) {
         swapListElements(l1,0,l1->rear);
         heapifyFreeList(l1,0);
