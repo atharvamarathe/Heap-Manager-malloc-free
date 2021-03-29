@@ -1,7 +1,7 @@
 #ifndef FREELIST_H
 #define FREELIST_H
 
-#include "mm.h"
+#include "sizeclasses.h"
 
 #define FREE_LIST_SIZE 100
 #define GETLCHILD(i) (2*i+1)
@@ -23,6 +23,7 @@ typedef struct free_list {
 }free_list;
 
 static free_list freeList;
+static free_list ClassFreeList[NUM_OF_CLASSES][];
 void initFreeList(free_list *l1);
 void swapListElements(free_list *l1,int i,int j);
 int addBlocktoFreeList(free_list *l1,meta_data_block ptr);
