@@ -1,7 +1,7 @@
 #include "sizeclassfreelist.h"
 #include <stdio.h>
 
-
+sizeClass_free_list sizeClassFreeList[NUM_OF_CLASSES];
 
 void initSizeClassFreeList() {
 
@@ -42,7 +42,7 @@ void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size) {
 
 }
 
-void addBlockfromSizeClassFreeList(meta_data_block ptr, int size) {
+void addBlocktoSizeClassFreeList(meta_data_block ptr, int size) {
 
     int i = 0;
     while(size > classSizeArray[i])
@@ -70,6 +70,11 @@ meta_data_block getFreeBlockfromFreeList(size_t bytes) {
     int i = 0;
     while(bytes > classSizeArray[i])
         i++;
+    if(sizeClassFreeList[i].rear < 0) {
+        // perror("Free list is empty");
+        return NULL;
+    }
+    return sizeClassFreeList[i].l[0].blockPtr;
     
 
 }

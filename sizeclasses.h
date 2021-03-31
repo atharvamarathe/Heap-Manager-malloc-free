@@ -2,6 +2,7 @@
 #define SIZECLASSES_H
 
 #include "mm.h"
+#include <stddef.h>
 #define STRINGIFY(a,b) a ## b
 #define GETCLASSINDEX(a) STRINGIFY(CLASS_,a)
 #define MAX_PAGES 5
@@ -62,7 +63,7 @@
 
 typedef struct page_list {
 
-    meta_data_block *head;
+    meta_data_block head;
     uint32_t availableBins;
     uint32_t class_size;
 }page_list;
@@ -74,6 +75,6 @@ void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages);
 extern int classSizeArray[NUM_OF_CLASSES];
 // extern int isInit;
 static page_list pageList[MAX_PAGES];
-static page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
+extern page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
 #endif

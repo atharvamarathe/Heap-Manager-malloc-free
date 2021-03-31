@@ -16,10 +16,10 @@ typedef struct sizeClass_free_list {
     int rear;
 }sizeClass_free_list;
 
-static sizeClass_free_list sizeClassFreeList[NUM_OF_CLASSES];
+extern sizeClass_free_list sizeClassFreeList[NUM_OF_CLASSES];
 
 void initSizeClassFreeList();
 meta_data_block getFreeBlockfromFreeList(size_t bytes);
-
-
+void addBlocktoSizeClassFreeList(meta_data_block ptr, int size);
+void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size);
 #endif

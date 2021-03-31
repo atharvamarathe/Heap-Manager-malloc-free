@@ -2,6 +2,7 @@
 #define MM_H
 
 #include <stdint.h>
+#include <stddef.h>
 #define TRUE 1
 #define FALSE 0
 #define METABLOCK_SIZE sizeof(meta_data_block_)
@@ -45,16 +46,18 @@ void freePages(void* vm_page,int units);
 void mmInit();
 void initPageList();
 void* Malloc(uint32_t size);
+void*  myMalloc(size_t bytes);
 void createBinsList(meta_data_block *head);
 int splitBins(meta_data_block m1,int size);
 int mergeBins(meta_data_block m1);
-meta_data_block getFreeBlock(meta_data_block *head);
+meta_data_block getFreeBlock(meta_data_block head);
 void Free(void *ptr);
+void myFree(void *ptr);
 // void freeDatablock(data_block d1);
 // void pageInit(data_block *d1);
 // static data_block d1;
-static size_t SYSTEM_PAGE_SIZE = 0;
-static size_t SYSTEM_PAGE_SIZE;
+extern  size_t SYSTEM_PAGE_SIZE;
+// static size_t SYSTEM_PAGE_SIZE;
 static int pageCount=0;
 static int currentFreePage=0;
 

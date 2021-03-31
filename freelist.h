@@ -23,7 +23,7 @@ typedef struct free_list {
 }free_list;
 
 static free_list freeList;
-static free_list ClassFreeList[NUM_OF_CLASSES][];
+// static free_list ClassFreeList[NUM_OF_CLASSES][];7
 void initFreeList(free_list *l1);
 void swapListElements(free_list *l1,int i,int j);
 int addBlocktoFreeList(free_list *l1,meta_data_block ptr);
@@ -31,6 +31,8 @@ void removeBlockfromFreeList(free_list *l1);
 void heapifyFreeList(free_list *l1,int i);
 int deleteBlockfromFreeList(free_list *l1, int size, meta_data_block m1);
 int sortFreeList(free_list *l1);
+
+
 
 
 #endif
