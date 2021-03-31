@@ -31,7 +31,7 @@ void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size) {
         j++;
     }
     if(j > sizeClassFreeList[i].rear) {
-        // perror("No block with the goven pointer");
+        // perror("No block with the given pointer");
         return;
     }
     _sizeClass_free_list temp;
@@ -57,24 +57,16 @@ void addBlocktoSizeClassFreeList(meta_data_block ptr, int size) {
     sizeClassFreeList[i].l[sizeClassFreeList[i].rear].blockSize = size;
 
     return;
-
-
-
-
-
     
 }
 
 meta_data_block getFreeBlockfromFreeList(size_t bytes) {
 
     int i = 0;
-    while(bytes > classSizeArray[i])
+    while(i <= NUM_OF_CLASSES &&  bytes > classSizeArray[i])
         i++;
-    if(sizeClassFreeList[i].rear < 0) {
-        // perror("Free list is empty");
-        return NULL;
-    }
-    return sizeClassFreeList[i].l[0].blockPtr;
-    
-
+    meta_data_block ptr;
+    ptr = sizeClassFreeList[i].l[0].blockPtr;
+    removeBlockfromSizeClassFreeList(sizeClassFreeList[i].l[0].blockPtr,sizeClassFreeList[i].l[0].blockSize);
+    return ptr;
 }

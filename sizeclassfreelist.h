@@ -19,6 +19,7 @@ typedef struct sizeClass_free_list {
 extern sizeClass_free_list sizeClassFreeList[NUM_OF_CLASSES];
 
 void initSizeClassFreeList();
+void addBlocktoSizeClassFreeList(meta_data_block ptr, int size);
 meta_data_block getFreeBlockfromFreeList(size_t bytes);
 void addBlocktoSizeClassFreeList(meta_data_block ptr, int size);
 void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size);
