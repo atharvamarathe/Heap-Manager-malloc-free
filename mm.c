@@ -41,60 +41,6 @@ void freePages(void* vm_page,int units) {
     }
 }
 
-// int isPageEmpty(meta_data_block head) {
-
-//     meta_data_block m1;
-//     m1=head;
-//     if(!m1)
-//         return INT_MIN;
-    
-//     while(m1->nextBlock!=NULL) {
-
-//         if(m1->isFree == FALSE)
-//             return FALSE;
-//         m1 = m1->nextBlock;
-//     }
-
-//     return TRUE;
-
-// }
-
-
-
-
-// void mmInit() {
-
-//     SYSTEM_PAGE_SIZE = getpagesize();
-//     meta_data_block a;
-//     printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
-//     a = (meta_data_block)getPages(1);
-//     if(!(a)) { 
-//         perror("getPages failed \n");
-//         return;
-//     }
-//     pageCount++;
-//     if(pageCount == MAX_PAGES)
-//         return;
-//     //TODO: Function to handle when all pages are exhausted
-//     pageList[pageCount-1].head =&a;
-//     pageList[pageCount-1].availableBins = SYSTEM_PAGE_SIZE - NUMBER_OF_BINS_PER_PAGE*METABLOCK_SIZE;
-//     createBinsList(pageList[pageCount-1].head);
-//     //    printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
-//     // printf("page 1 = %p\n",*d1);
-//     // a->blockSize = SYSTEM_PAGE_SIZE-METABLOCK_SIZE;
-//     // a->isFree=TRUE;
-//     // a->nextBlock = d2->prevBlock = NULL;
-//     // a->offset = 0;
-
-// }
-
-// void initPageList() {
-
-//     for(int i = 0;i<MAX_PAGES;i++) {
-//         pageList[i].head = NULL;
-//         pageList[i].availableBins = 0;
-//     }
-// }
 
 meta_data_block getFreeBlock(meta_data_block head) {
 
@@ -107,6 +53,117 @@ meta_data_block getFreeBlock(meta_data_block head) {
     return a;
     
 }
+
+
+
+void*  myMalloc(size_t bytes) {
+
+    static int isInit = FALSE;
+
+    if(isInit == FALSE) {
+        SYSTEM_PAGE_SIZE = getpagesize();
+        initSizeClassList();
+        initSizeClassFreeList();
+        isInit = TRUE;
+        
+    }
+
+    if(bytes <= 0) {
+
+        // perror("no of bytes cannot be negative or zero");
+        return NULL;
+    }
+
+    if(bytes < CLASS_SIZE_LIMIT) {
+
+        // if(freeList.rear != -1 && freeList.list[0].blockPtr != NULL) {
+
+        // free-list not empty
+        //     sortFreeList(&freeList);
+        //     int j=0;
+        //     while(j<FREE_LIST_SIZE && bytes < freeList.list[j].blockSize)
+        //         j++;
+        //     if(j < FREE_LIST_SIZE) {
+
+        //         meta_data_block m1;
+        //         m1 = freeList.list[j].blockPtr;
+        //         deleteBlockfromFreeList(&freeList,freeList.list[j].blockSize,m1);
+        //         return (void *)(m1+1);
+        //     }
+        // }
+        int sizeclass=0;
+        while(bytes > classSizeArray[sizeclass])
+            sizeclass++;
+        if(isSizeClassFreeListEmpty(sizeclass) == FALSE) {
+            //TODO: Can easily fail. If freelist of specific sizeclass is empty, handle that condition.
+            return (void *)(getFreeBlockfromFreeList(bytes)+1);
+        }
+
+
+        int i=0;
+        while(bytes > classSizeArray[i]) {
+            i++;
+        }
+        meta_data_block ptr,mptr;
+        // int iter = 0;
+        // if(iter<MAX_PAGES && sizeClassList[i][0].availableBins == -1) {
+            
+        // }
+        // while(iter<MAX_PAGES && sizeClassList[i][iter].availableBins < 1) {
+        //     // printf("available bins : %d\n",sizeClassList[i][iter].availableBins);
+        //     iter++;
+        // }
+        ptr = getPageforAllocation(i);
+        if(ptr == NULL) {
+            // perror("Malloc failed \n");
+            return NULL;
+        }
+        // if(iter >= MAX_PAGES)
+            // do something
+        // printf("head is : %p and  i, iter is : %d , %d\n",sizeClassList[i][iter].head,i,iter);
+        mptr = getFreeBlock(ptr);
+        mptr->isFree = FALSE;
+
+        printf("********************Memory Allocation details :*************************\n");
+        printf("Requested Bytes : %ld\n",bytes);
+        printf("Memory address of meta data  : %p\n",ptr);
+        printf("Size-class : %d \n",i);
+        // printf("Page no : %d \n",iter+1);
+        printf("NextBlock Address : %p\n",ptr->nextBlock);
+        printf("PrevBlock Address : %p\n",ptr->prevBlock);
+        printf("*************************************************************************\n");
+        return (void *)(mptr+1);
+    }
+
+    return NULL;
+}
+
+
+void myFree(void *ptr) {
+
+    meta_data_block mptr;
+    mptr = ((meta_data_block)ptr)-1;
+    if(mptr == NULL) {
+        // perror("Can't free NULL pointer ");
+        return ;
+    }
+    static int isInit = FALSE;
+
+    if(isInit == FALSE) {
+        
+        initSizeClassFreeList();
+        isInit = TRUE;
+    }
+
+    mptr->isFree = TRUE;
+    addBlocktoSizeClassFreeList(mptr,mptr->blockSize);
+    return;
+}
+
+
+
+
+
 
 // void* Malloc(uint32_t size) {
 
@@ -257,89 +314,57 @@ meta_data_block getFreeBlock(meta_data_block head) {
 // }
 
 
-void*  myMalloc(size_t bytes) {
+// int isPageEmpty(meta_data_block head) {
 
-    static int isInit = FALSE;
+//     meta_data_block m1;
+//     m1=head;
+//     if(!m1)
+//         return INT_MIN;
+    
+//     while(m1->nextBlock!=NULL) {
 
-    if(isInit == FALSE) {
-        SYSTEM_PAGE_SIZE = getpagesize();
-        initSizeClassList();
-        initFreeList(&freeList);
-        isInit = TRUE;
-        
-    }
+//         if(m1->isFree == FALSE)
+//             return FALSE;
+//         m1 = m1->nextBlock;
+//     }
 
-    if(bytes <= 0) {
+//     return TRUE;
 
-        // perror("no of bytes cannot be negative or zero");
-        return NULL;
-    }
-
-    if(bytes < CLASS_SIZE_LIMIT) {
-
-        if(freeList.rear != -1 && freeList.list[0].blockPtr != NULL) {
-
-        // free-list not empty
-            sortFreeList(&freeList);
-            int j=0;
-            while(j<FREE_LIST_SIZE && bytes < freeList.list[j].blockSize)
-                j++;
-            if(j < FREE_LIST_SIZE) {
-
-                meta_data_block m1;
-                m1 = freeList.list[j].blockPtr;
-                deleteBlockfromFreeList(&freeList,freeList.list[j].blockSize,m1);
-                return (void *)(m1+1);
-            }
-        }
-        int i=0;
-        while(bytes > classSizeArray[i]) {
-            i++;
-        }
-        meta_data_block ptr;
-        int iter = 0;
-        while(iter<MAX_PAGES && sizeClassList[i][iter].availableBins < 1) {
-            // printf("available bins : %d\n",sizeClassList[i][iter].availableBins);
-            iter++;
-        }
-        if(iter >= MAX_PAGES)
-            ;//do something
-        // printf("head is : %p and  i, iter is : %d , %d\n",sizeClassList[i][iter].head,i,iter);
-        ptr = getFreeBlock(sizeClassList[i][iter].head);
-        ptr->isFree = FALSE;
-
-        printf("********************Memory Allocation details :*************************\n");
-        printf("Requested Bytes : %ld\n",bytes);
-        printf("Memory address of meta data  : %p\n",ptr);
-        printf("Size-class : %d \n",i);
-        printf("Page no : %d \n",iter+1);
-        printf("NextBlock Address : %p\n",ptr->nextBlock);
-        printf("PrevBlock Address : %p\n",ptr->prevBlock);
-        printf("*************************************************************************\n");
-        return (void *)(ptr+1);
-    }
-
-    return NULL;
-}
+// }
 
 
-void myFree(void *ptr) {
 
-    meta_data_block mptr;
-    mptr = ((meta_data_block)ptr)-1;
-    if(mptr == NULL) {
-        // perror("Can't free NULL pointer ");
-        return ;
-    }
-    static int isInit = FALSE;
 
-    if(isInit == FALSE) {
-        
-        initSizeClassFreeList();
-        isInit = TRUE;
-    }
+// void mmInit() {
 
-    mptr->isFree = TRUE;
-    addBlocktoSizeClassFreeList(mptr,mptr->blockSize);
-    return;
-}
+//     SYSTEM_PAGE_SIZE = getpagesize();
+//     meta_data_block a;
+//     printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
+//     a = (meta_data_block)getPages(1);
+//     if(!(a)) { 
+//         perror("getPages failed \n");
+//         return;
+//     }
+//     pageCount++;
+//     if(pageCount == MAX_PAGES)
+//         return;
+//     //TODO: Function to handle when all pages are exhausted
+//     pageList[pageCount-1].head =&a;
+//     pageList[pageCount-1].availableBins = SYSTEM_PAGE_SIZE - NUMBER_OF_BINS_PER_PAGE*METABLOCK_SIZE;
+//     createBinsList(pageList[pageCount-1].head);
+//     //    printf("VM Page Size = %lu\n",SYSTEM_PAGE_SIZE);
+//     // printf("page 1 = %p\n",*d1);
+//     // a->blockSize = SYSTEM_PAGE_SIZE-METABLOCK_SIZE;
+//     // a->isFree=TRUE;
+//     // a->nextBlock = d2->prevBlock = NULL;
+//     // a->offset = 0;
+
+// }
+
+// void initPageList() {
+
+//     for(int i = 0;i<MAX_PAGES;i++) {
+//         pageList[i].head = NULL;
+//         pageList[i].availableBins = 0;
+//     }
+// }

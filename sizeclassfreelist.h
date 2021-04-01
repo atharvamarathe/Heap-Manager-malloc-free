@@ -22,5 +22,6 @@ void initSizeClassFreeList();
 void addBlocktoSizeClassFreeList(meta_data_block ptr, int size);
 meta_data_block getFreeBlockfromFreeList(size_t bytes);
 void addBlocktoSizeClassFreeList(meta_data_block ptr, int size);
+int isSizeClassFreeListEmpty(int sizeclass);
 void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size);
 #endif

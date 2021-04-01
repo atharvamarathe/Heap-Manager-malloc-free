@@ -40,16 +40,21 @@ int main() {
     d->c=444;
     d->d=2222;
     printf("the value of the struct is %d %d %d and %d\n",d->a,d->b,d->c,d->d);
-    buf *a,*b,*c;
-    a = (buf*)myMalloc(sizeof(buf));
-    b = (buf*)myMalloc(sizeof(buf));
-    c = (buf*)myMalloc(sizeof(buf));
-    largealloc *p;
-    p = (largealloc *)myMalloc(sizeof(largealloc));
+    myFree(d);
+    buf *try,*b,*c;
+    try = (buf*)myMalloc(sizeof(buf));
+    try->a= 3024;
+    try->b=3024;
+    try->c=3024;
+    try->d=3024;
+    printf("the value of the struct is %d %d %d and %d\n",try->a,try->b,try->c,try->d);
+    // b = (buf*)myMalloc(sizeof(buf));
+    // c = (buf*)myMalloc(sizeof(buf));
+    // largealloc *p;
+    // p = (largealloc *)myMalloc(sizeof(largealloc));
     // printf("The value of class 16 is : %d\n",GETCLASSINDEX(16));
     // Free(d);
     // Free(a);
-    myFree(p);
     return 0;
  }
 

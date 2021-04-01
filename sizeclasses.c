@@ -15,53 +15,56 @@ int classSizeArray[NUM_OF_CLASSES] = {
 void initSizeClassList() {
 
 
-    for(int j=0;j<NUM_OF_CLASSES-1;j++) {
-
-        for(int i=0;i<MAX_PAGES;i++) {
-            // printf("The pointer is : %p\n",*(sizeClassList[j][i].head));
-            (sizeClassList[j][i].head) = (meta_data_block)getPages(1);
-            // printf("Available bins : %ld\n",TOTAL_BINS_IN_CLASS(1,classSizeArray[j]));
-            sizeClassList[j][i].availableBins = TOTAL_BINS_IN_CLASS(1,classSizeArray[j]);
-
-
-        }
-    }
-    for(int i=0;i<MAX_PAGES;i++) {
-
-        (sizeClassList[NUM_OF_CLASSES-1][i].head) = (meta_data_block)getPages(2);
-        sizeClassList[NUM_OF_CLASSES-1][i].availableBins = TOTAL_BINS_IN_CLASS(2,1024);
-    }
-    // for(int i=0;i<NUM_OF_CLASSES;i++) {
-
-    //     for(int j=1;j<MAX_PAGES;j++) {
-    //             sizeClassList[i][j].head = NULL;
-    //             sizeClassList[i][j].availableSize = -1;
-    //     }
-    // }
-
-    // createSizeClassBinsList(sizeClassList[0][0].head,SIZECLASS4);
-    for(int i=0;i<NUM_OF_CLASSES-1;i++) {
-
+    for(int i=0;i<NUM_OF_CLASSES;i++) {
         for(int j=0;j<MAX_PAGES;j++) {
-            if(sizeClassList[i][j].head != NULL) {
-                // printf("NEW PAGE STARTING -----------------------------------------------------------------------------------------------------\n");
-                createSizeClassBinsList(&(sizeClassList[i][j].head),classSizeArray[i],1);
-            }
-            // else 
-                // perror("VM allocation failed \n");
+            sizeClassList[i][j].head = NULL;
+            sizeClassList[i][j].availableBins = -1;
         }
     }
-    for(int j=0;j<MAX_PAGES;j++) {
-        if(sizeClassList[NUM_OF_CLASSES-1][j].head != NULL) {
-                // printf("NEW PAGE STARTING -----------------------------------------------------------------------------------------------------\n");
-                createSizeClassBinsList(&(sizeClassList[NUM_OF_CLASSES-1][j].head),classSizeArray[NUM_OF_CLASSES-1],2);
-        }
-
-    }
+    return;
 
 }
 
+void createSizeClassPage(int sizeclass,int offset) {
 
+    if(sizeClassList[sizeclass][offset].head == NULL && sizeClassList[sizeclass][offset].availableBins == -1) {
+
+         if(sizeclass != 1024) {
+
+        sizeClassList[sizeclass][offset].head = (meta_data_block)getPages(1);
+        sizeClassList[sizeclass][offset].availableBins = TOTAL_BINS_IN_CLASS(1,classSizeArray[sizeclass]);
+        createSizeClassBinsList(&(sizeClassList[sizeclass][offset].head),classSizeArray[sizeclass],1);
+        }
+        else if(sizeclass == 1024) {
+
+            sizeClassList[sizeclass][offset].head = (meta_data_block)getPages(2);
+            sizeClassList[sizeclass][offset].availableBins = TOTAL_BINS_IN_CLASS(2,classSizeArray[sizeclass]);
+            createSizeClassBinsList(&(sizeClassList[sizeclass][offset].head),classSizeArray[sizeclass],2);
+        }
+    }
+    return ;
+}
+
+
+meta_data_block getPageforAllocation(int sizeclass) {
+
+    int i=0;
+    while(i < MAX_PAGES && sizeClassList[sizeclass][i].availableBins <1 && sizeClassList[sizeclass][i].availableBins != -1) {
+        i++;
+    }
+    if(i >= MAX_PAGES)
+        return NULL;
+    else if(sizeClassList[sizeclass][i].availableBins > 1) {
+
+        return sizeClassList[sizeclass][i].head;
+    }
+    else if(sizeClassList[sizeclass][i].availableBins == -1) {
+
+        createSizeClassPage(sizeclass,i);
+        return sizeClassList[sizeclass][i].head;
+    }
+    return NULL;
+}
 
 void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages) {
 

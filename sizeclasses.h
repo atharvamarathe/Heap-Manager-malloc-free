@@ -64,14 +64,15 @@
 typedef struct page_list {
 
     meta_data_block head;
-    uint32_t availableBins;
-    uint32_t class_size;
+    int availableBins;
+    // uint32_t class_size;
 }page_list;
 
 
 void initSizeClassList();
 void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages);
-
+void createSizeClassPage(int sizeclass,int offset);
+meta_data_block getPageforAllocation(int sizeclass);
 extern int classSizeArray[NUM_OF_CLASSES];
 // extern int isInit;
 static page_list pageList[MAX_PAGES];

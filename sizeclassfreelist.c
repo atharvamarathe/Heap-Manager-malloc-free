@@ -5,20 +5,26 @@ sizeClass_free_list sizeClassFreeList[NUM_OF_CLASSES];
 
 void initSizeClassFreeList() {
 
-    static int isinit=FALSE;
+    
 
-    if(isinit == FALSE) {
+    for(int i =0;i<NUM_OF_CLASSES;i++) {
 
-        for(int i =0;i<NUM_OF_CLASSES;i++) {
+        for(int j = 0;j<SIZECLASS_FREE_LIST_SIZE;j++) {
 
-            for(int j = 0;j<SIZECLASS_FREE_LIST_SIZE;j++) {
-
-                sizeClassFreeList[i].l[j].blockPtr = NULL;
-                sizeClassFreeList[i].l[j].blockSize = 0;
-            }
-            sizeClassFreeList[i].rear = SIZECLASS_FREE_LIST_SIZE-1;
+            sizeClassFreeList[i].l[j].blockPtr = NULL;
+            sizeClassFreeList[i].l[j].blockSize = 0;
         }
+        sizeClassFreeList[i].rear = SIZECLASS_FREE_LIST_SIZE-1;
     }
+    
+}
+
+int isSizeClassFreeListEmpty(int sizeclass) {
+        for(int j=0;j<SIZECLASS_FREE_LIST_SIZE;j++) {
+            if(sizeClassFreeList[sizeclass].l[j].blockPtr != NULL && sizeClassFreeList[sizeclass].l[j].blockSize != 0)
+                return FALSE;
+        }
+    return TRUE;
 }
 
 void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size) {
