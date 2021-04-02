@@ -14,7 +14,7 @@ void initSizeClassFreeList() {
             sizeClassFreeList[i].l[j].blockPtr = NULL;
             sizeClassFreeList[i].l[j].blockSize = 0;
         }
-        sizeClassFreeList[i].rear = SIZECLASS_FREE_LIST_SIZE-1;
+        sizeClassFreeList[i].rear = -1;
     }
     
 }

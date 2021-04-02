@@ -2,6 +2,8 @@
 #include "largealloc.h"
 
 
+large_alloc_list largeAllocList;
+
 void LargeAllocInit() {
 
     for(int i =0;i<MAX_PAGES_FOR_LARGE_ALLOC;i++) {

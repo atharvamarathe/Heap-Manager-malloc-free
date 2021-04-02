@@ -19,7 +19,7 @@ typedef struct _large_alloc_list {
     large_alloc largeBlock[MAX_PAGES_FOR_LARGE_ALLOC];
     int count;
 }large_alloc_list;
-static large_alloc_list largeAllocList;
+extern large_alloc_list largeAllocList;
 void LargeAllocInit();
 
 

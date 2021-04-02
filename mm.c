@@ -46,8 +46,10 @@ meta_data_block getFreeBlock(meta_data_block head) {
 
     meta_data_block a;
     a= head;
-    // printf("Got till here  with a : %p\n",head);
-    while(a->nextBlock != NULL && a->isFree != TRUE) {
+    printf("Attention : IS free of head is : %d\n",a->isFree);
+    while(a->nextBlock != NULL && a->isFree == FALSE) {
+        // printf("Yaha par ja hi nahi raha \n");
+        // printf("Aur nextblock ka address hai : %p\n",a->nextBlock);
         a = a->nextBlock;
     }
     return a;
@@ -76,21 +78,7 @@ void*  myMalloc(size_t bytes) {
 
     if(bytes < CLASS_SIZE_LIMIT) {
 
-        // if(freeList.rear != -1 && freeList.list[0].blockPtr != NULL) {
-
-        // free-list not empty
-        //     sortFreeList(&freeList);
-        //     int j=0;
-        //     while(j<FREE_LIST_SIZE && bytes < freeList.list[j].blockSize)
-        //         j++;
-        //     if(j < FREE_LIST_SIZE) {
-
-        //         meta_data_block m1;
-        //         m1 = freeList.list[j].blockPtr;
-        //         deleteBlockfromFreeList(&freeList,freeList.list[j].blockSize,m1);
-        //         return (void *)(m1+1);
-        //     }
-        // }
+        
         int sizeclass=0;
         while(bytes > classSizeArray[sizeclass])
             sizeclass++;
@@ -115,7 +103,7 @@ void*  myMalloc(size_t bytes) {
         // }
         ptr = getPageforAllocation(i);
         if(ptr == NULL) {
-            // perror("Malloc failed \n");
+            perror("Malloc failed \n");
             return NULL;
         }
         // if(iter >= MAX_PAGES)
@@ -126,11 +114,11 @@ void*  myMalloc(size_t bytes) {
 
         printf("********************Memory Allocation details :*************************\n");
         printf("Requested Bytes : %ld\n",bytes);
-        printf("Memory address of meta data  : %p\n",ptr);
+        printf("Memory address of meta data  : %p\n",mptr);
         printf("Size-class : %d \n",i);
         // printf("Page no : %d \n",iter+1);
-        printf("NextBlock Address : %p\n",ptr->nextBlock);
-        printf("PrevBlock Address : %p\n",ptr->prevBlock);
+        printf("NextBlock Address : %p\n",mptr->nextBlock);
+        printf("PrevBlock Address : %p\n",mptr->prevBlock);
         printf("*************************************************************************\n");
         return (void *)(mptr+1);
     }
@@ -368,3 +356,21 @@ void myFree(void *ptr) {
 //         pageList[i].availableBins = 0;
 //     }
 // }
+
+
+
+// if(freeList.rear != -1 && freeList.list[0].blockPtr != NULL) {
+
+        // free-list not empty
+        //     sortFreeList(&freeList);
+        //     int j=0;
+        //     while(j<FREE_LIST_SIZE && bytes < freeList.list[j].blockSize)
+        //         j++;
+        //     if(j < FREE_LIST_SIZE) {
+
+        //         meta_data_block m1;
+        //         m1 = freeList.list[j].blockPtr;
+        //         deleteBlockfromFreeList(&freeList,freeList.list[j].blockSize,m1);
+        //         return (void *)(m1+1);
+        //     }
+        // }

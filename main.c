@@ -48,6 +48,58 @@ int main() {
     try->c=3024;
     try->d=3024;
     printf("the value of the struct is %d %d %d and %d\n",try->a,try->b,try->c,try->d);
+    largealloc *ptr1,*ptr2,*ptr3,*ptr4,*ptr5,*ptr6,*ptr7,*ptr8,*ptr9,*ptr10;
+    ptr1 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr2 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr3 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr1->arr[0] = 1;
+    ptr2->arr[0] = 2;
+    ptr3->arr[0] = 3;
+    printf("ptr1 : %d\n",ptr1->arr[0]);
+    printf("ptr2 : %d\n",ptr2->arr[0]);
+    printf("ptr3 : %d\n",ptr3->arr[0]);
+    myFree(ptr1);
+    myFree(ptr2);
+    myFree(ptr3);
+    ptr4 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr5 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr6 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr4->arr[0] = 4;
+    ptr5->arr[0] = 5;
+    ptr6->arr[0] = 6;
+    printf("ptr4 : %d\n",ptr4->arr[0]);
+    printf("ptr5 : %d\n",ptr5->arr[0]);
+    printf("ptr6 : %d\n",ptr6->arr[0]);
+    myFree(ptr4);
+    myFree(ptr5);
+    myFree(ptr6);
+    ptr7 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr8 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr9 = (largealloc *)myMalloc(sizeof(largealloc));
+    ptr7->arr[0] = 7;
+    ptr8->arr[0] = 8;
+    ptr9->arr[0] = 9;
+    printf("ptr7 : %d\n",ptr7->arr[0]);
+    printf("ptr8 : %d\n",ptr8->arr[0]);
+    printf("ptr9 : %d\n",ptr9->arr[0]);
+    myFree(ptr7);
+    myFree(ptr8);
+    myFree(ptr9);
+    ptr10 = (largealloc *)myMalloc(sizeof(largealloc));
+
+
+    
+    
+    
+    ptr10->arr[0] = 10;
+    // printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&Printing the results :&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+    
+    
+   
+    printf("ptr10 : %d\n",ptr10->arr[0]);
+
+    // ptr1 = (largealloc *)myMalloc(sizeof(largealloc));
+
     // b = (buf*)myMalloc(sizeof(buf));
     // c = (buf*)myMalloc(sizeof(buf));
     // largealloc *p;

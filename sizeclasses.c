@@ -27,6 +27,7 @@ void initSizeClassList() {
 
 void createSizeClassPage(int sizeclass,int offset) {
 
+    printf("***********************8 in the create size class page****************************************************************\n");
     if(sizeClassList[sizeclass][offset].head == NULL && sizeClassList[sizeclass][offset].availableBins == -1) {
 
          if(sizeclass != 1024) {
@@ -52,17 +53,20 @@ meta_data_block getPageforAllocation(int sizeclass) {
     while(i < MAX_PAGES && sizeClassList[sizeclass][i].availableBins <1 && sizeClassList[sizeclass][i].availableBins != -1) {
         i++;
     }
-    if(i >= MAX_PAGES)
+    if(i >= MAX_PAGES) {
         return NULL;
-    else if(sizeClassList[sizeclass][i].availableBins > 1) {
-
+    }
+    else if(sizeClassList[sizeclass][i].availableBins >= 1) {
+        sizeClassList[sizeclass][i].availableBins -=1;
         return sizeClassList[sizeclass][i].head;
     }
     else if(sizeClassList[sizeclass][i].availableBins == -1) {
 
         createSizeClassPage(sizeclass,i);
+        sizeClassList[sizeclass][i].availableBins -=1;
         return sizeClassList[sizeclass][i].head;
     }
+        printf("oh shit here hoy !\n");
     return NULL;
 }
 
