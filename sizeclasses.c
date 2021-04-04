@@ -27,17 +27,15 @@ void initSizeClassList() {
 
 void createSizeClassPage(int sizeclass,int offset) {
 
-    printf("***********************8 in the create size class page****************************************************************\n");
     if(sizeClassList[sizeclass][offset].head == NULL && sizeClassList[sizeclass][offset].availableBins == -1) {
 
-         if(sizeclass != 1024) {
+         if(sizeclass != 41) {
 
         sizeClassList[sizeclass][offset].head = (meta_data_block)getPages(1);
         sizeClassList[sizeclass][offset].availableBins = TOTAL_BINS_IN_CLASS(1,classSizeArray[sizeclass]);
         createSizeClassBinsList(&(sizeClassList[sizeclass][offset].head),classSizeArray[sizeclass],1);
         }
-        else if(sizeclass == 1024) {
-
+        else if(sizeclass == 41) {
             sizeClassList[sizeclass][offset].head = (meta_data_block)getPages(2);
             sizeClassList[sizeclass][offset].availableBins = TOTAL_BINS_IN_CLASS(2,classSizeArray[sizeclass]);
             createSizeClassBinsList(&(sizeClassList[sizeclass][offset].head),classSizeArray[sizeclass],2);
@@ -48,8 +46,12 @@ void createSizeClassPage(int sizeclass,int offset) {
 
 
 meta_data_block getPageforAllocation(int sizeclass) {
-
     int i=0;
+    if(sizeClassList[sizeclass][0].head == NULL && sizeClassList[sizeclass][0].availableBins == -1) {
+        createSizeClassPage(sizeclass,0);
+        sizeClassList[sizeclass][0].availableBins -=1;
+        return sizeClassList[sizeclass][0].head;
+    }
     while(i < MAX_PAGES && sizeClassList[sizeclass][i].availableBins <1 && sizeClassList[sizeclass][i].availableBins != -1) {
         i++;
     }
@@ -66,7 +68,6 @@ meta_data_block getPageforAllocation(int sizeclass) {
         sizeClassList[sizeclass][i].availableBins -=1;
         return sizeClassList[sizeclass][i].head;
     }
-        printf("oh shit here hoy !\n");
     return NULL;
 }
 
@@ -74,7 +75,6 @@ void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages) 
 
 
     if(head == NULL) {
-        printf("NULL detected\n");
         return;
 
     }
@@ -95,6 +95,7 @@ void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages) 
         // printf("Block Size : %d\n",a->blockSize);
         // printf("AT the is free \n");
         a->isFree = TRUE;
+        a->headPtr = *head;
         // printf("At next Block \n");
         a->nextBlock =(meta_data_block)(((char *)a)+METABLOCK_SIZE+binSize);
         // printf("Binsize : %d , Current position : %p and nextBlock at %p\n",binSize,a,a->nextBlock);
@@ -111,11 +112,51 @@ void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages) 
     a->nextBlock = NULL;
 }
 
+int isSizeClassPageEmpty(int sizeclass, int offset) {
 
+    meta_data_block mptr;
 
+    mptr = sizeClassList[sizeclass][offset].head;
+    while(mptr != NULL) {
 
+        if(mptr ->isFree == FALSE)
+            return FALSE;
+        mptr = mptr -> nextBlock;
+    }
+    return TRUE;
+}
 
+void removeEmptySizeClassPage(int sizeclass, int offset) {
+    //TODO : No need to recheck for isempty
+    if(isSizeClassPageEmpty(sizeclass,offset) == TRUE) {
 
+        int j=MAX_PAGES-1;
+        while(j>=0 && sizeClassList[sizeclass][j].availableBins == -1 && sizeClassList[sizeclass][j].head == NULL)
+            j--;
+        if(j==0) {
+            if(classSizeArray[sizeclass] == 1024)
+                freePages(sizeClassList[sizeclass][j].head,2);
+            else 
+                freePages(sizeClassList[sizeclass][j].head,1);
+            
+            sizeClassList[sizeclass][j].head = NULL;
+            sizeClassList[sizeclass][j].availableBins = -1;
+            return;
+        }
+        page_list temp;
+        temp = sizeClassList[sizeclass][offset];
+        sizeClassList[sizeclass][offset] = sizeClassList[sizeclass][j];
+        sizeClassList[sizeclass][j] = temp;
+        //TODO : Handle case for 1024 size class
+        if(classSizeArray[sizeclass] == 1024)
+            freePages(sizeClassList[sizeclass][j].head,2);
+        else
+            freePages(sizeClassList[sizeclass][j].head,1);
+        sizeClassList[sizeclass][j].head = NULL;
+        sizeClassList[sizeclass][j].availableBins = -1;
+    }
+    return ;
+}
 
 
 

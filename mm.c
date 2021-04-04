@@ -16,18 +16,15 @@ size_t SYSTEM_PAGE_SIZE = 0;
 
 
 void * getPages(int units) {
-   SYSTEM_PAGE_SIZE = getpagesize();
-    // printf("SYStem page size is : %ld and units is %d\n",SYSTEM_PAGE_SIZE,units);
     char *vm_page = mmap(
-        0,units*SYSTEM_PAGE_SIZE,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_ANON|MAP_PRIVATE,0,0);
+        NULL,units*SYSTEM_PAGE_SIZE,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_ANON|MAP_PRIVATE,0,0);
     
     if(vm_page == MAP_FAILED) {
 
-       // printf("Error! VM Page allocation failed \n");
+    //    printf("Error! VM Page allocation failed \n");
         perror("Error ! VM Page allocation failed \n");
         return NULL;
     }
-    // printf("Page address : %p\n",vm_page);
     memset(vm_page,0,units*SYSTEM_PAGE_SIZE);
     return (void *)vm_page;
 }
@@ -46,7 +43,6 @@ meta_data_block getFreeBlock(meta_data_block head) {
 
     meta_data_block a;
     a= head;
-    printf("Attention : IS free of head is : %d\n",a->isFree);
     while(a->nextBlock != NULL && a->isFree == FALSE) {
         // printf("Yaha par ja hi nahi raha \n");
         // printf("Aur nextblock ka address hai : %p\n",a->nextBlock);
@@ -77,12 +73,11 @@ void*  myMalloc(size_t bytes) {
     }
 
     if(bytes < CLASS_SIZE_LIMIT) {
-
-        
         int sizeclass=0;
         while(bytes > classSizeArray[sizeclass])
             sizeclass++;
         if(isSizeClassFreeListEmpty(sizeclass) == FALSE) {
+            printf("Fuck! here is the error !\n");
             //TODO: Can easily fail. If freelist of specific sizeclass is empty, handle that condition.
             return (void *)(getFreeBlockfromFreeList(bytes)+1);
         }
@@ -102,8 +97,12 @@ void*  myMalloc(size_t bytes) {
         //     iter++;
         // }
         ptr = getPageforAllocation(i);
+        int k=0;
+        while(k<MAX_PAGES && sizeClassList[i][k].head != ptr)
+            k++;
+        // printf("YEHHH HAI pointer %p   ###############################################################################\n",ptr);
         if(ptr == NULL) {
-            perror("Malloc failed \n");
+            // perror("Malloc failed \n");
             return NULL;
         }
         // if(iter >= MAX_PAGES)
@@ -111,15 +110,7 @@ void*  myMalloc(size_t bytes) {
         // printf("head is : %p and  i, iter is : %d , %d\n",sizeClassList[i][iter].head,i,iter);
         mptr = getFreeBlock(ptr);
         mptr->isFree = FALSE;
-
-        printf("********************Memory Allocation details :*************************\n");
-        printf("Requested Bytes : %ld\n",bytes);
-        printf("Memory address of meta data  : %p\n",mptr);
-        printf("Size-class : %d \n",i);
-        // printf("Page no : %d \n",iter+1);
-        printf("NextBlock Address : %p\n",mptr->nextBlock);
-        printf("PrevBlock Address : %p\n",mptr->prevBlock);
-        printf("*************************************************************************\n");
+        mptr->headPtr = ptr;
         return (void *)(mptr+1);
     }
 
@@ -128,13 +119,18 @@ void*  myMalloc(size_t bytes) {
 
 
 void myFree(void *ptr) {
-
     meta_data_block mptr;
     mptr = ((meta_data_block)ptr)-1;
     if(mptr == NULL) {
         // perror("Can't free NULL pointer ");
         return ;
     }
+    meta_data_block headptr;
+    headptr = mptr->headPtr;
+    int sizeclass=0;
+    while(sizeclass < NUM_OF_CLASSES && mptr->blockSize > classSizeArray[sizeclass])
+        sizeclass++;
+     
     static int isInit = FALSE;
 
     if(isInit == FALSE) {
@@ -142,9 +138,20 @@ void myFree(void *ptr) {
         initSizeClassFreeList();
         isInit = TRUE;
     }
-
+    int offset = 0;
+    while(offset < MAX_PAGES && headptr != sizeClassList[sizeclass][offset].head) {
+        offset++;
+    }
     mptr->isFree = TRUE;
-    addBlocktoSizeClassFreeList(mptr,mptr->blockSize);
+    if(isSizeClassPageEmpty(sizeclass,offset) == TRUE) {
+        removeAllFreeListBlocksFromOffset(sizeclass,offset);
+        removeEmptySizeClassPage(sizeclass,offset);
+        return;
+    }
+    else {
+        addBlocktoSizeClassFreeList(mptr,mptr->blockSize,offset);
+    
+    }
     return;
 }
 

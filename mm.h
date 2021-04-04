@@ -5,7 +5,6 @@
 #include <stddef.h>
 #define TRUE 1
 #define FALSE 0
-#define METABLOCK_SIZE sizeof(meta_data_block_)
 #define BIN_SIZE 16
 #define NUMBER_OF_BINS_PER_PAGE SYSTEM_PAGE_SIZE/(BIN_SIZE+METABLOCK_SIZE)
 
@@ -15,21 +14,22 @@ typedef struct meta_data_block_ {
     uint32_t blockSize;
     struct meta_data_block_ *prevBlock;
     struct meta_data_block_ *nextBlock;
-    uint32_t offset;
+    struct meta_data_block_ *headPtr;
 }meta_data_block_;
 
 typedef meta_data_block_ * meta_data_block;
 
 
-typedef struct data_block_ {
+#define METABLOCK_SIZE sizeof(meta_data_block_)
+// typedef struct data_block_ {
 
-    struct data_block_ *next;
-    struct data_block_ *prev;
-    char *data;
-    meta_data_block metaData;
-}data_block_;
+//     struct data_block_ *next;
+//     struct data_block_ *prev;
+//     char *data;
+//     meta_data_block metaData;
+// }data_block_;
 
-typedef data_block_ * data_block;
+// typedef data_block_ * data_block;
 
 // typedef struct page_list{
 
