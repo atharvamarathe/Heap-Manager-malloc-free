@@ -6,7 +6,7 @@
 // which is equivalent to 2 pages of memory.
 #include "mm.h"
 
-#define MAX_PAGES_FOR_LARGE_ALLOC 30
+#define MAX_SIZE_FOR_LARGE_ALLOC 30
 
 typedef struct _large_alloc {
 
@@ -16,7 +16,7 @@ typedef struct _large_alloc {
 }large_alloc;
 
 typedef struct _large_alloc_list {
-    large_alloc largeBlock[MAX_PAGES_FOR_LARGE_ALLOC];
+    large_alloc largeBlock[MAX_SIZE_FOR_LARGE_ALLOC];
     int count;
 }large_alloc_list;
 extern large_alloc_list largeAllocList;
