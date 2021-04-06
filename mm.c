@@ -230,7 +230,19 @@ void myFree(void *ptr) {
     return;
 }
 
+void* myCalloc(size_t num, size_t size) {
 
+    void *ptr;
+
+    ptr = myMalloc(num * size);
+    if (ptr == NULL) {
+        return ptr;
+    }
+
+    bzero(ptr, num * size);
+    return ptr;
+
+}
 
 
 

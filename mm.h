@@ -47,6 +47,7 @@ void mmInit();
 void initPageList();
 void* Malloc(uint32_t size);
 void*  myMalloc(size_t bytes);
+void*  myCalloc(size_t num,size_t size);
 void createBinsList(meta_data_block *head);
 int splitBins(meta_data_block m1,int size);
 int mergeBins(meta_data_block m1);
