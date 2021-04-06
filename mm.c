@@ -9,6 +9,7 @@
 #include "sizeclasses.h"
 #include "freelist.h"
 #include "sizeclassfreelist.h"
+#include "largealloc.h"
 // #include "mm.h"
 
 size_t SYSTEM_PAGE_SIZE = 0;
@@ -62,6 +63,7 @@ void*  myMalloc(size_t bytes) {
         SYSTEM_PAGE_SIZE = getpagesize();
         initSizeClassList();
         initSizeClassFreeList();
+        initFreeList(&freeList);
         isInit = TRUE;
         
     }
@@ -113,6 +115,34 @@ void*  myMalloc(size_t bytes) {
         mptr->headPtr = ptr;
         return (void *)(mptr+1);
     }
+    else {
+
+        sortFreeList(&freeList);
+        int i = 0;
+        while(i <= freeList.rear && bytes > freeList.list[i].blockSize)
+            i++;
+        if(i<= freeList.rear) {
+
+            meta_data_block bptr;
+            if(freeList.list[i].blockSize > (bytes+METABLOCK_SIZE+CLASS_SIZE_LIMIT)) {
+                if(splitLargeBlock(freeList.list[i].blockPtr,freeList.list[i].blockSize) == INT_MIN) {
+                    return NULL;
+                }
+                addBlocktoFreeList(&freeList,freeList.list[i].blockPtr->nextBlock);
+                bptr = freeList.list[i].blockPtr;
+                deleteBlockfromFreeList(&freeList,freeList.list[i].blockSize,freeList.list[i].blockPtr);
+                return (void *)(bptr+1);
+            }
+            bptr = freeList.list[i].blockPtr;
+            deleteBlockfromFreeList(&freeList,freeList.list[i].blockSize,freeList.list[i].blockPtr);
+            return (void *)(bptr+1);
+        }
+
+        else {
+
+            return returnLargeBlock(bytes);
+        }
+    }
 
     return NULL;
 }
@@ -158,8 +188,45 @@ void myFree(void *ptr) {
 
     }
 
-    
-    
+    else {
+
+        meta_data_block next = mptr->nextBlock;
+        meta_data_block prev = mptr->prevBlock;
+        meta_data_block head;
+        if(next->isFree == TRUE) {
+            mergeLargeBlock(mptr);
+
+        }
+        if(prev->isFree == TRUE) {
+            mergeLargeBlock(prev);
+            if(isLargeAllocPageEmpty(prev->headPtr)==TRUE) {
+                head = prev->headPtr;
+                for(int i=0;i<=freeList.rear;i++) {
+
+                    if(freeList.list[i].blockPtr->headPtr == head)
+                        deleteBlockfromFreeList(&freeList,freeList.list[i].blockSize,freeList.list[i].blockPtr);
+                }
+                removeLargeAllocPage(head);
+            }
+            else {
+                addBlocktoFreeList(&freeList,prev);
+            }
+        }
+        else {
+
+            if(isLargeAllocPageEmpty(mptr->headPtr)==TRUE) {
+                head = mptr->headPtr;
+                for(int i=0;i<=freeList.rear;i++) {
+                    if(freeList.list[i].blockPtr->headPtr == head)
+                        deleteBlockfromFreeList(&freeList,freeList.list[i].blockSize,freeList.list[i].blockPtr);
+                }
+                removeLargeAllocPage(head);
+            }
+            else 
+            addBlocktoFreeList(&freeList,mptr);
+        }
+
+    }
     return;
 }
 

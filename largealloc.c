@@ -80,7 +80,7 @@ void* returnLargeBlock(size_t bytes) {
         while(mptr->blockSize < bytes) {
             mptr = mptr -> nextBlock;
         }
-
+        mptr->headPtr = largeAllocList.largeBlock[i].ptr;
         int buf = mptr->blockSize % bytes;
         if(buf < (METABLOCK_SIZE+1024))
             return(void *)(mptr+1);
@@ -126,4 +126,36 @@ void* returnLargeBlock(size_t bytes) {
         a->headPtr =  temp;
         return (void*)(temp+1);
         }
+}
+
+
+int isLargeAllocPageEmpty(meta_data_block head) {
+
+    meta_data_block iter= head;
+    while(iter!= NULL) {
+        if(iter->isFree == FALSE)
+            return FALSE;
+    }
+    return FALSE;
+}
+
+
+void removeLargeAllocPage(meta_data_block head) {
+
+    int i =0;
+    while(i < MAX_SIZE_FOR_LARGE_ALLOC && head != largeAllocList.largeBlock[i].ptr) {
+        i++;
+    }
+
+    if(i==MAX_SIZE_FOR_LARGE_ALLOC)
+        return;
+    large_alloc temp  = largeAllocList.largeBlock[i];
+    largeAllocList.largeBlock[i] = largeAllocList.largeBlock[largeAllocList.count];
+    largeAllocList.largeBlock[largeAllocList.count].offset = 0;
+    largeAllocList.largeBlock[largeAllocList.count].remainingSize = 0;
+    largeAllocList.largeBlock[largeAllocList.count].ptr = NULL;
+    largeAllocList.count-=1;
+    freePages(head,4);
+
+    return;
 }

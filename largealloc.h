@@ -6,7 +6,7 @@
 // which is equivalent to 2 pages of memory.
 #include "mm.h"
 
-#define MAX_SIZE_FOR_LARGE_ALLOC 30
+#define MAX_SIZE_FOR_LARGE_ALLOC 100
 
 typedef struct _large_alloc {
 
@@ -20,10 +20,12 @@ typedef struct _large_alloc_list {
     int count;
 }large_alloc_list;
 extern large_alloc_list largeAllocList;
+int splitLargeBlock(meta_data_block mptr, size_t bytes);
+int mergeLargeBlock(meta_data_block m1);
+void* returnLargeBlock(size_t bytes);
 void LargeAllocInit();
-
-
-
+int isLargeAllocPageEmpty(meta_data_block head);
+void removeLargeAllocPage(meta_data_block head);
 
 
 
