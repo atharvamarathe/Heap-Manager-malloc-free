@@ -125,33 +125,41 @@ void myFree(void *ptr) {
         // perror("Can't free NULL pointer ");
         return ;
     }
-    meta_data_block headptr;
-    headptr = mptr->headPtr;
-    int sizeclass=0;
-    while(sizeclass < NUM_OF_CLASSES && mptr->blockSize > classSizeArray[sizeclass])
-        sizeclass++;
-     
-    static int isInit = FALSE;
+    if(mptr->blockSize < CLASS_SIZE_LIMIT) {
 
-    if(isInit == FALSE) {
+        meta_data_block headptr;
+        headptr = mptr->headPtr;
+        int sizeclass=0;
+        while(sizeclass < NUM_OF_CLASSES && mptr->blockSize > classSizeArray[sizeclass])
+            sizeclass++;
+
+        static int isInit = FALSE;
+
+        if(isInit == FALSE) {
         
-        initSizeClassFreeList();
-        isInit = TRUE;
-    }
-    int offset = 0;
-    while(offset < MAX_PAGES && headptr != sizeClassList[sizeclass][offset].head) {
-        offset++;
-    }
-    mptr->isFree = TRUE;
-    if(isSizeClassPageEmpty(sizeclass,offset) == TRUE) {
-        removeAllFreeListBlocksFromOffset(sizeclass,offset);
-        removeEmptySizeClassPage(sizeclass,offset);
-        return;
-    }
-    else {
-        addBlocktoSizeClassFreeList(mptr,mptr->blockSize,offset);
+            initSizeClassFreeList();
+            isInit = TRUE;
+        }
+        int offset = 0;
+        while(offset < MAX_PAGES && headptr != sizeClassList[sizeclass][offset].head) {
+            offset++;
+        }
+        mptr->isFree = TRUE;
+        if(isSizeClassPageEmpty(sizeclass,offset) == TRUE) {
+            removeAllFreeListBlocksFromOffset(sizeclass,offset);
+            removeEmptySizeClassPage(sizeclass,offset);
+            return;
+        }
+        else {
+            addBlocktoSizeClassFreeList(mptr,mptr->blockSize,offset);
     
+        }
+
+
     }
+
+    
+    
     return;
 }
 
@@ -260,17 +268,6 @@ void myFree(void *ptr) {
 //     return INT_MIN;
 // }
 
-// int mergeBins(meta_data_block m1) {
-
-//     if(!m1 || m1->nextBlock ==NULL || m1->isFree==FALSE || m1->nextBlock->isFree == FALSE)
-//         return INT_MIN;
-//     meta_data_block a;
-//     a = m1->nextBlock;
-//     // m1->blockSize +=  METABLOCK_SIZE + a ->blockSize;
-//     m1->nextBlock = a->nextBlock;
-//     a->nextBlock->prevBlock = m1;
-//     return 1;
-// }
 
 
 

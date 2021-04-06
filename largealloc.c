@@ -52,6 +52,21 @@ int splitLargeBlock(meta_data_block mptr, size_t bytes) {
 }
 
 
+int mergeLargeBlock(meta_data_block m1) {
+
+    if(!m1 || m1->nextBlock ==NULL || m1->isFree==FALSE || m1->nextBlock->isFree == FALSE)
+        return INT_MIN;
+    meta_data_block a;
+    a = m1->nextBlock;
+    size_t nextSize = a->blockSize;
+    // m1->blockSize +=  METABLOCK_SIZE + a ->blockSize;
+    m1->nextBlock = a->nextBlock;
+    a->nextBlock->prevBlock = m1;
+    m1->blockSize += METABLOCK_SIZE + nextSize;
+    return 1;
+}
+
+
 void* returnLargeBlock(size_t bytes) {
 
     int i=0;
@@ -80,7 +95,6 @@ void* returnLargeBlock(size_t bytes) {
                 return (void *)(mptr+1);
             }
         }
-
 
     }
     else {

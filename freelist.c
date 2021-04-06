@@ -6,6 +6,8 @@
 #include <error.h>
 
 
+free_list freeList;
+
 void initFreeList(free_list *l1) {
 
     l1->size = FREE_LIST_SIZE;
@@ -46,6 +48,23 @@ int addBlocktoFreeList(free_list *l1,meta_data_block ptr) {
     return 1;
 }
 
+void heapifyFreeList() {
+
+
+    for(int i=0;i<freeList.rear;i++) {
+
+        if(freeList.list[i].blockSize > freeList.list[GETPARENT(i)].blockSize) {
+            int j =i;
+
+            while(freeList.list[j].blockSize > freeList.list[GETPARENT(j)].blockSize) {
+                swapListElements(&freeList,j,GETPARENT(j));
+                j= GETPARENT(j);
+            }
+        }
+    }
+}
+
+
 void removeBlockfromFreeList(free_list *l1) {
 
     if(l1->rear == -1)
@@ -79,34 +98,7 @@ void removeBlockfromFreeList(free_list *l1) {
     return;
 }
 
-void heapifyFreeList(free_list *l1,int i) {
 
-
-    if(l1->rear == 0)
-        return;
-    i=0;
-    int max;
-    while(i<= l1->rear) {
-
-        int left = GETLCHILD(i);
-        int right = GETRCHILD(i);
-        if(left > l1->rear)
-            return;
-        if(right > l1->rear) {
-            if(l1->list[i].blockSize < l1->list[left].blockSize)
-                swapListElements(l1,i,left);
-            return;
-        }
-
-        if(l1->list[left].blockSize > l1->list[right].blockSize)
-            max = left;
-        else 
-            max = right;
-        swapListElements(l1,i,max);
-        i = max;
-    }
-    return;
-}
 
 
 int deleteBlockfromFreeList(free_list *l1,int size , meta_data_block m1) {
@@ -125,25 +117,57 @@ int deleteBlockfromFreeList(free_list *l1,int size , meta_data_block m1) {
     l1->list[l1->rear].blockPtr = NULL;
     l1->list[l1->rear].blockSize = 0;
     l1->rear--;
-    heapifyFreeList(l1,0);
+    heapifyFreeList();
     return 1;
 }
 
 
 int sortFreeList(free_list *l1) {
 
-    if(!l1 || l1->list==NULL || l1->rear==-1)
-        return INT_MIN;
+    heapifyFreeList();
+    for(int i = l1->rear;i>0;i++) {
+        swapListElements(l1,0,i);
 
-    int i;
-//TODO: chuklay , infinte loop madhe jael. Correct it
-    for(i=0;i>=0;i++) {
-        swapListElements(l1,0,l1->rear);
-        heapifyFreeList(l1,0);
-        l1->rear--;
+        int j = 0,index;
+
+        do {
+            index = GETLCHILD(j);
+            if(l1->list[index].blockSize < l1->list[GETRCHILD(j)].blockSize && index < (i-1))
+                i++;
+            if(l1->list[j].blockSize < l1->list[index].blockSize && index < i)
+                swapListElements(l1,j,index);
+            j = index;
+        }while(index < i);
     }
-
     return 1;
 }
 
 
+// void heapifyFreeList(free_list *l1,int i) {
+
+
+//     if(l1->rear == 0)
+//         return;
+//     i=0;
+//     int max;
+//     while(i<= l1->rear) {
+
+//         int left = GETLCHILD(i);
+//         int right = GETRCHILD(i);
+//         if(left > l1->rear)
+//             return;
+//         if(right > l1->rear) {
+//             if(l1->list[i].blockSize < l1->list[left].blockSize)
+//                 swapListElements(l1,i,left);
+//             return;
+//         }
+
+//         if(l1->list[left].blockSize > l1->list[right].blockSize)
+//             max = left;
+//         else 
+//             max = right;
+//         swapListElements(l1,i,max);
+//         i = max;
+//     }
+//     return;
+// }
