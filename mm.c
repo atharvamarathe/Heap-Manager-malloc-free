@@ -79,7 +79,6 @@ void*  myMalloc(size_t bytes) {
         while(bytes > classSizeArray[sizeclass])
             sizeclass++;
         if(isSizeClassFreeListEmpty(sizeclass) == FALSE) {
-            printf("Fuck! here is the error !\n");
             //TODO: Can easily fail. If freelist of specific sizeclass is empty, handle that condition.
             return (void *)(getFreeBlockfromFreeList(bytes)+1);
         }
@@ -242,6 +241,32 @@ void* myCalloc(size_t num, size_t size) {
     bzero(ptr, num * size);
     return ptr;
 
+}
+
+
+void* myRealloc(void* ptr, size_t size) {
+
+    meta_data_block mptr;
+    if(ptr == NULL)
+        return myMalloc(size);
+    mptr = ((meta_data_block)ptr)-1;
+    if(size < 0)
+        return NULL;
+    if(size == 0) {
+        myFree(ptr);
+        return NULL;
+    }
+
+    void  *newPtr;
+    newPtr = myMalloc(size);
+    if(newPtr == NULL)
+        return NULL;
+        if(mptr->blockSize < size)
+            memmove(newPtr,ptr,mptr->blockSize);
+        else 
+            memmove(newPtr,ptr,size);
+    myFree(ptr);
+    return newPtr;
 }
 
 
