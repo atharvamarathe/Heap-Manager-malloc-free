@@ -16,17 +16,18 @@ void LargeAllocInit() {
        largeAllocList.largeBlock[i].offset = 0;
        largeAllocList.largeBlock[i].remainingSize = 0;
     }
-    largeAllocList.largeBlock[0].ptr = (meta_data_block)getPages(4);
-    largeAllocList.largeBlock[0].offset  = 0;
-    largeAllocList.largeBlock[0].remainingSize = SYSTEM_PAGE_SIZE - METABLOCK_SIZE;
-    largeAllocList.count = 0;
-    meta_data_block temp;
-    temp = largeAllocList.largeBlock[0].ptr;
-    temp->blockSize = SYSTEM_PAGE_SIZE-METABLOCK_SIZE;
-    temp->prevBlock = NULL;
-    temp->nextBlock = NULL;
-    temp->isFree = TRUE;
-    temp->headPtr = temp;
+    // largeAllocList.largeBlock[0].ptr = (meta_data_block)getPages(4);
+    // largeAllocList.largeBlock[0].offset  = 0;
+    // largeAllocList.largeBlock[0].remainingSize = 4*SYSTEM_PAGE_SIZE - METABLOCK_SIZE;
+    // largeAllocList.count = 0;
+    // meta_data_block temp;
+    // temp = largeAllocList.largeBlock[0].ptr;
+    // temp->blockSize = 4*SYSTEM_PAGE_SIZE-METABLOCK_SIZE;
+    // printf("Currently available size is %d\n",temp->blockSize);
+    // temp->prevBlock = NULL;
+    // temp->nextBlock = NULL;
+    // temp->isFree = TRUE;
+    // temp->headPtr = temp;
 }
 
 int splitLargeBlock(meta_data_block mptr, size_t bytes) {
@@ -69,19 +70,37 @@ int mergeLargeBlock(meta_data_block m1) {
 
 void* returnLargeBlock(size_t bytes) {
 
-    int i=0;
+    int i=0,requiresPages;
     while(i<= largeAllocList.count && bytes <= largeAllocList.largeBlock[i].remainingSize)
         i++;
+    if(i >= largeAllocList.count && largeAllocList.largeBlock[0].ptr == NULL && largeAllocList.largeBlock[0].remainingSize == 0 && largeAllocList.largeBlock[0  ].offset == 0) {
 
+        requiresPages = 4 > ((bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE) ? 4 : (bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE;
+        // printf("The required pages are %d\n",requiresPages);
+        largeAllocList.largeBlock[0].ptr = (meta_data_block)getPages(requiresPages);
+        largeAllocList.largeBlock[0].offset  = 0;
+        largeAllocList.largeBlock[0].remainingSize = bytes;
+        largeAllocList.count = 0;
+        meta_data_block temp;
+        temp = largeAllocList.largeBlock[0].ptr;
+        temp->blockSize = bytes;
+        temp->prevBlock = NULL;
+        temp->nextBlock = NULL;
+        temp->isFree = TRUE;
+        temp->headPtr = temp;
+        i=0;
+    }
     if(i <= largeAllocList.count) {
 
         meta_data_block mptr;
         mptr = largeAllocList.largeBlock[i].ptr;
+        printf("i is and mptr is %d and %d\n",i,mptr->blockSize);
         while(mptr->blockSize < bytes) {
             mptr = mptr -> nextBlock;
         }
         mptr->headPtr = largeAllocList.largeBlock[i].ptr;
         int buf = mptr->blockSize % bytes;
+        // printf("Buf is %d\n",buf);
         if(buf < (METABLOCK_SIZE+1024))
             return(void *)(mptr+1);
         else {
@@ -104,9 +123,10 @@ void* returnLargeBlock(size_t bytes) {
             // perror("Memory full. Can't allocate ");
             return  NULL;
         }
-        largeAllocList.largeBlock[largeAllocList.count].ptr = (meta_data_block)getPages(4);
+        requiresPages = 4 > ((bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE) ? 4 : (bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE;
+        largeAllocList.largeBlock[largeAllocList.count].ptr = (meta_data_block)getPages(requiresPages);
         largeAllocList.largeBlock[largeAllocList.count].offset = 0;
-        largeAllocList.largeBlock[largeAllocList.count].remainingSize = SYSTEM_PAGE_SIZE - METABLOCK_SIZE;
+        largeAllocList.largeBlock[largeAllocList.count].remainingSize = requiresPages*SYSTEM_PAGE_SIZE - METABLOCK_SIZE;
         meta_data_block temp,a;
         temp = largeAllocList.largeBlock[largeAllocList.count].ptr;
         temp->blockSize = bytes;

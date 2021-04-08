@@ -62,6 +62,7 @@ void*  myMalloc(size_t bytes) {
     if(isInit == FALSE) {
         SYSTEM_PAGE_SIZE = getpagesize();
         initSizeClassList();
+        LargeAllocInit();
         initSizeClassFreeList();
         initFreeList(&freeList);
         isInit = TRUE;
@@ -154,6 +155,8 @@ void myFree(void *ptr) {
         // perror("Can't free NULL pointer ");
         return ;
     }
+    if(mptr->isFree == TRUE)
+        return;
     if(mptr->blockSize < CLASS_SIZE_LIMIT) {
 
         meta_data_block headptr;
@@ -261,10 +264,10 @@ void* myRealloc(void* ptr, size_t size) {
     newPtr = myMalloc(size);
     if(newPtr == NULL)
         return NULL;
-        if(mptr->blockSize < size)
-            memmove(newPtr,ptr,mptr->blockSize);
-        else 
-            memmove(newPtr,ptr,size);
+    if(mptr->blockSize < size)
+        memmove(newPtr,ptr,mptr->blockSize);
+    else 
+        memmove(newPtr,ptr,size);
     myFree(ptr);
     return newPtr;
 }
