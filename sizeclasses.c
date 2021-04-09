@@ -84,31 +84,22 @@ void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages) 
     binNum = no_of_pages*SYSTEM_PAGE_SIZE/(binSize+METABLOCK_SIZE);
 
 
-    // printf("SYSTEM_PAGE_SIZE IS %ld and biNum is : %d\n",SYSTEM_PAGE_SIZE,binNum);
 
     meta_data_block a,prev=NULL;
     a = *head;
     for(int i=0;i<binNum-1;i++) {
-        // printf("AT prevBlock a: %p and prev is  %p\n",a,prev);
         a->prevBlock = prev;
         a->blockSize=binSize;
-        // printf("Block Size : %d\n",a->blockSize);
-        // printf("AT the is free \n");
         a->isFree = TRUE;
         a->headPtr = *head;
-        // printf("At next Block \n");
         a->nextBlock =(meta_data_block)(((char *)a)+METABLOCK_SIZE+binSize);
-        // printf("Binsize : %d , Current position : %p and nextBlock at %p\n",binSize,a,a->nextBlock);
         prev = a;
         a = a-> nextBlock;
     }
     
-    // printf("PREV AFTER FOR LOOP IS %p\n",prev);
     a->prevBlock = prev;
     a->blockSize=binSize;
-    // printf("Block Size : %d\n",a->blockSize);
     a->isFree = TRUE;
-    // printf("/////////////////////////////////////////////////////////////////////////////\n");
     a->nextBlock = NULL;
 }
 

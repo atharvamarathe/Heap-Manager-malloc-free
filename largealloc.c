@@ -75,7 +75,7 @@ void* returnLargeBlock(size_t bytes) {
         i++;
     if(i >= largeAllocList.count && largeAllocList.largeBlock[0].ptr == NULL && largeAllocList.largeBlock[0].remainingSize == 0 && largeAllocList.largeBlock[0  ].offset == 0) {
 
-        requiresPages = 4 > ((bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE) ? 4 : (bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE;
+        requiresPages = 4 > ((bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE) ? 4 : ((bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE)+1;
         // printf("The required pages are %d\n",requiresPages);
         largeAllocList.largeBlock[0].ptr = (meta_data_block)getPages(requiresPages);
         largeAllocList.largeBlock[0].offset  = 0;
@@ -95,12 +95,12 @@ void* returnLargeBlock(size_t bytes) {
         meta_data_block mptr;
         mptr = largeAllocList.largeBlock[i].ptr;
         printf("i is and mptr is %d and %d\n",i,mptr->blockSize);
+        printf("Pointer is %p and next pointer is %p\n",mptr,mptr->nextBlock);
         while(mptr->blockSize < bytes) {
             mptr = mptr -> nextBlock;
         }
         mptr->headPtr = largeAllocList.largeBlock[i].ptr;
         int buf = mptr->blockSize % bytes;
-        // printf("Buf is %d\n",buf);
         if(buf < (METABLOCK_SIZE+1024))
             return(void *)(mptr+1);
         else {
