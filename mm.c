@@ -10,10 +10,16 @@
 #include "freelist.h"
 #include "sizeclassfreelist.h"
 #include "largealloc.h"
-// #include "mm.h"
+
 
 size_t SYSTEM_PAGE_SIZE = 0;
 
+
+/*
+ * getPages : Wrapper function to mmap() system call. 
+ *          Returns Address of the virtual memory pages that are allocated. Returns NULL if mapping is failed 
+ * Params : int units : number of virtual memory pages required.
+ */
 
 
 void * getPages(int units) {
@@ -22,7 +28,6 @@ void * getPages(int units) {
     
     if(vm_page == MAP_FAILED) {
 
-    //    printf("Error! VM Page allocation failed \n");
         perror("Error ! VM Page allocation failed \n");
         return NULL;
     }
@@ -30,14 +35,27 @@ void * getPages(int units) {
     return (void *)vm_page;
 }
 
+/*
+ * freePages : Wrapper function to munmap() system call
+ *             Returns the memory pages back to the kernel ( frees the page)
+ * Params : vm_page : pointer to the memory pages 
+ *          units : Number of pages that are to be unmapped.
+ */
+
 void freePages(void* vm_page,int units) {
 
     if(munmap(vm_page,units*SYSTEM_PAGE_SIZE)) {
 
-       // printf("Error! Could not munmap VM page to kernel");
        perror("Error! Could not munmap VM page to kernel");
     }
 }
+
+/*
+ *
+ * getFreeBlock : returns unused memory block from a virtual memory page
+ * 
+ * Params : Starting address of the virtual memory page
+ */
 
 
 meta_data_block getFreeBlock(meta_data_block head) {
@@ -45,15 +63,17 @@ meta_data_block getFreeBlock(meta_data_block head) {
     meta_data_block a;
     a= head;
     while(a->nextBlock != NULL && a->isFree == FALSE) {
-        // printf("Yaha par ja hi nahi raha \n");
-        // printf("Aur nextblock ka address hai : %p\n",a->nextBlock);
         a = a->nextBlock;
     }
     return a;
     
 }
 
-
+/*
+ *
+ * myMalloc : Used for dynamic allocation of memory. Returns pointer to the requested amount of memory
+ * Params : number of bytes required by the user.
+ */
 
 void*  myMalloc(size_t bytes) {
 
@@ -71,7 +91,6 @@ void*  myMalloc(size_t bytes) {
 
     if(bytes <= 0) {
 
-        // perror("no of bytes cannot be negative or zero");
         return NULL;
     }
 
@@ -80,7 +99,6 @@ void*  myMalloc(size_t bytes) {
         while(bytes > classSizeArray[sizeclass])
             sizeclass++;
         if(isSizeClassFreeListEmpty(sizeclass) == FALSE) {
-            //TODO: Can easily fail. If freelist of specific sizeclass is empty, handle that condition.
             return (void *)(getFreeBlockfromFreeList(bytes)+1);
         }
 
@@ -90,19 +108,11 @@ void*  myMalloc(size_t bytes) {
             i++;
         }
         meta_data_block ptr,mptr;
-        // int iter = 0;
-        // if(iter<MAX_PAGES && sizeClassList[i][0].availableBins == -1) {
-            
-        // }
-        // while(iter<MAX_PAGES && sizeClassList[i][iter].availableBins < 1) {
-        //     // printf("available bins : %d\n",sizeClassList[i][iter].availableBins);
-        //     iter++;
-        // }
+        
         ptr = getPageforAllocation(i);
         int k=0;
         while(k<MAX_PAGES && sizeClassList[i][k].head != ptr)
             k++;
-        // printf("YEHHH HAI pointer %p   ###############################################################################\n",ptr);
         if(ptr == NULL) {
             // perror("Malloc failed \n");
             return NULL;
