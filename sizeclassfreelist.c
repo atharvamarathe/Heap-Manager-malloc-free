@@ -61,7 +61,7 @@ void addBlocktoSizeClassFreeList(meta_data_block ptr, int size,int offset) {
         // perror("free List full !");
         return ;
     }
-    
+    sizeClassFreeList[i].rear +=1;
     sizeClassFreeList[i].l[sizeClassFreeList[i].rear].blockPtr = ptr;
     sizeClassFreeList[i].l[sizeClassFreeList[i].rear].blockSize = size;
     sizeClassFreeList[i].l[sizeClassFreeList[i].rear].offset = offset;
