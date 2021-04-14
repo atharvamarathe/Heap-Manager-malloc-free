@@ -6,11 +6,7 @@
 #define STRINGIFY(a,b) a ## b
 #define GETCLASSINDEX(a) STRINGIFY(CLASS_,a)
 #define MAX_PAGES 5
-
 #define CLASS_SIZE_LIMIT 1024
-// #define STRINGIFY(a,b) a ## b
-// #define GETCLASS_SIZE(a,b) STRINGIFY(a,b)
-// #define GET_CLASS_SIZE(a) GETCLASS_SIZE(SIZECLASS,a)  
 #define NUM_OF_CLASSES 42
 //  ________________________________________________________________________________
 //  |  | CLASS-NAME  |   INDEX_OF_PAGE_LIST  | Max no of Pages Allocation capacity |  
@@ -61,23 +57,36 @@
 
 #define TOTAL_BINS_IN_CLASS(no_of_pages,class_size)  (no_of_pages*SYSTEM_PAGE_SIZE)/(METABLOCK_SIZE+class_size)
 
+/*
+ * page_list : Structure for the sizeclasses implementation. The sizeclassList is a 2D array of page_list
+ * Members :
+ *          head : pointer to the virtual memory page
+ *          availableBins : Number of memory blocks available for use
+ */
+
 typedef struct page_list {
 
     meta_data_block head;
     int availableBins;
-    // uint32_t class_size;
 }page_list;
 
 
 void initSizeClassList();
+
 void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages);
+
 void createSizeClassPage(int sizeclass,int offset);
+
 meta_data_block getPageforAllocation(int sizeclass);
+
 int isSizeClassPageEmpty(int sizeclass, int offset);
+
 void removeEmptySizeClassPage(int sizeclass, int offset);
+
 extern int classSizeArray[NUM_OF_CLASSES];
-// extern int isInit;
+
 static page_list pageList[MAX_PAGES];
+
 extern page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
 #endif

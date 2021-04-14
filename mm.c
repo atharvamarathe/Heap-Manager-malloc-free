@@ -70,7 +70,6 @@ meta_data_block getFreeBlock(meta_data_block head) {
 }
 
 /*
- *
  * myMalloc : Used for dynamic allocation of memory. Returns pointer to the requested amount of memory
  * Params : number of bytes required by the user.
  */
@@ -78,6 +77,8 @@ meta_data_block getFreeBlock(meta_data_block head) {
 void*  myMalloc(size_t bytes) {
 
     static int isInit = FALSE;
+
+// Initializing the size-classes and free-lists
 
     if(isInit == FALSE) {
         SYSTEM_PAGE_SIZE = getpagesize();
@@ -94,10 +95,13 @@ void*  myMalloc(size_t bytes) {
         return NULL;
     }
 
+// If the memory requirement is less than 1kB ( for size-classes)
     if(bytes < CLASS_SIZE_LIMIT) {
         int sizeclass=0;
         while(bytes > classSizeArray[sizeclass])
             sizeclass++;
+// If freed blocks are available in freeList return address from the list 
+
         if(isSizeClassFreeListEmpty(sizeclass) == FALSE) {
             return (void *)(getFreeBlockfromFreeList(bytes)+1);
         }
@@ -108,7 +112,7 @@ void*  myMalloc(size_t bytes) {
             i++;
         }
         meta_data_block ptr,mptr;
-        
+// Getting page from the sizeclassList which has atleast one block avaiable for use
         ptr = getPageforAllocation(i);
         int k=0;
         while(k<MAX_PAGES && sizeClassList[i][k].head != ptr)
@@ -117,16 +121,17 @@ void*  myMalloc(size_t bytes) {
             // perror("Malloc failed \n");
             return NULL;
         }
-        // if(iter >= MAX_PAGES)
-            // do something
-        // printf("head is : %p and  i, iter is : %d , %d\n",sizeClassList[i][iter].head,i,iter);
+
         mptr = getFreeBlock(ptr);
         mptr->isFree = FALSE;
         mptr->headPtr = ptr;
         return (void *)(mptr+1);
     }
     else {
+// if memory requirement is greatr than 1 kB (large Allocation)
 
+// Checking if memory block is available in the free list 
+//    Sorting the heap of free list containing pointer to memory blocks 
         sortFreeList(&freeList);
         int i = 0;
         while(i <= freeList.rear && bytes > freeList.list[i].blockSize)
@@ -134,6 +139,8 @@ void*  myMalloc(size_t bytes) {
         if(i<= freeList.rear) {
 
             meta_data_block bptr;
+// Spliting the memory block only if the remaining block will not cause hard memory fragmentation.
+
             if(freeList.list[i].blockSize > (bytes+METABLOCK_SIZE+CLASS_SIZE_LIMIT)) {
                 if(splitLargeBlock(freeList.list[i].blockPtr,freeList.list[i].blockSize) == INT_MIN) {
                     return NULL;
@@ -147,7 +154,7 @@ void*  myMalloc(size_t bytes) {
             deleteBlockfromFreeList(&freeList,freeList.list[i].blockSize,freeList.list[i].blockPtr);
             return (void *)(bptr+1);
         }
-
+// If free-list do not contain any block , allocating new block in memory page.
         else {
 
             return returnLargeBlock(bytes);
@@ -158,6 +165,10 @@ void*  myMalloc(size_t bytes) {
 }
 
 
+
+/*
+ * myFree : function to free the dynamically allocated memory.
+ */
 void myFree(void *ptr) {
     meta_data_block mptr;
     mptr = ((meta_data_block)ptr)-1;
@@ -167,6 +178,8 @@ void myFree(void *ptr) {
     }
     if(mptr->isFree == TRUE)
         return;
+// Memory block belongs to size-classes
+
     if(mptr->blockSize < CLASS_SIZE_LIMIT) {
 
         meta_data_block headptr;
@@ -188,6 +201,7 @@ void myFree(void *ptr) {
         }
         mptr->isFree = TRUE;
         if(isSizeClassPageEmpty(sizeclass,offset) == TRUE) {
+        // if complete memory page is empty then unmap it to the kernel
             removeAllFreeListBlocksFromOffset(sizeclass,offset);
             removeEmptySizeClassPage(sizeclass,offset);
             return;
@@ -201,10 +215,11 @@ void myFree(void *ptr) {
     }
 
     else {
-
+// Memory block belongs to large alloc
         meta_data_block next = mptr->nextBlock;
         meta_data_block prev = mptr->prevBlock;
         meta_data_block head;
+    // merging next and prev memory blocks if they are free
         if(next->isFree == TRUE) {
             mergeLargeBlock(mptr);
 
@@ -212,6 +227,7 @@ void myFree(void *ptr) {
         if(prev->isFree == TRUE) {
             mergeLargeBlock(prev);
             if(isLargeAllocPageEmpty(prev->headPtr)==TRUE) {
+                // return page to the kernel if all blocks are free
                 head = prev->headPtr;
                 for(int i=0;i<=freeList.rear;i++) {
 
@@ -235,12 +251,17 @@ void myFree(void *ptr) {
                 removeLargeAllocPage(head);
             }
             else 
-            addBlocktoFreeList(&freeList,mptr);
+                addBlocktoFreeList(&freeList,mptr);
         }
 
     }
     return;
 }
+
+
+/*
+ * myCalloc : dynamically allocates memory and initializes it to zero 
+ */
 
 void* myCalloc(size_t num, size_t size) {
 
@@ -250,12 +271,16 @@ void* myCalloc(size_t num, size_t size) {
     if (ptr == NULL) {
         return ptr;
     }
-
+// Initializing it to zero
     bzero(ptr, num * size);
     return ptr;
 
 }
 
+/*
+ * myRealloc : Reallocates the dynamically allocated memory to a new size.
+ *             frees the inital memory if size is zero.
+ */
 
 void* myRealloc(void* ptr, size_t size) {
 
@@ -274,6 +299,7 @@ void* myRealloc(void* ptr, size_t size) {
     newPtr = myMalloc(size);
     if(newPtr == NULL)
         return NULL;
+// Moving contents to the memory to the new allocated location
     if(mptr->blockSize < size)
         memmove(newPtr,ptr,mptr->blockSize);
     else 
