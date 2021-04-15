@@ -7,6 +7,7 @@ large_alloc_list largeAllocList;
 
 
 
+// LargeAllocInit : Initializes the largealloclist when it is called for the first time.
 
 void LargeAllocInit() {
 
@@ -16,19 +17,16 @@ void LargeAllocInit() {
        largeAllocList.largeBlock[i].offset = 0;
        largeAllocList.largeBlock[i].remainingSize = 0;
     }
-    // largeAllocList.largeBlock[0].ptr = (meta_data_block)getPages(4);
-    // largeAllocList.largeBlock[0].offset  = 0;
-    // largeAllocList.largeBlock[0].remainingSize = 4*SYSTEM_PAGE_SIZE - METABLOCK_SIZE;
-    // largeAllocList.count = 0;
-    // meta_data_block temp;
-    // temp = largeAllocList.largeBlock[0].ptr;
-    // temp->blockSize = 4*SYSTEM_PAGE_SIZE-METABLOCK_SIZE;
-    // printf("Currently available size is %d\n",temp->blockSize);
-    // temp->prevBlock = NULL;
-    // temp->nextBlock = NULL;
-    // temp->isFree = TRUE;
-    // temp->headPtr = temp;
+    
 }
+
+/*
+ * splitLargeBlock : Splits the memory block into two parts in such a way that one blocks has memory equal to 
+ *                   the memory requested. Splits the blocks only when it will not result into hard fragmentation
+ *           Params : mptr : the memory block that needs to be splitted.
+ *                   bytes : the number of bytes required in the memory block after splitting.
+ * Returns : 1 on success and INT_MIN on failure.
+ */
 
 int splitLargeBlock(meta_data_block mptr, size_t bytes) {
 
@@ -52,7 +50,12 @@ int splitLargeBlock(meta_data_block mptr, size_t bytes) {
 
 }
 
-
+/*
+ * mergeLargeBlock : merge two consecutive memory blocks together to form a single block. Called by the free() funcion
+ *                   when two consecutive blocks are unused.
+ *          Params : m1 : pointer to the inital memory block. Its next block will be merged with it.
+ * Returns 1 on Succuess and INT_MIN on failure.
+ */
 int mergeLargeBlock(meta_data_block m1) {
 
     if(!m1 || m1->nextBlock ==NULL || m1->isFree==FALSE || m1->nextBlock->isFree == FALSE)
@@ -60,23 +63,26 @@ int mergeLargeBlock(meta_data_block m1) {
     meta_data_block a;
     a = m1->nextBlock;
     size_t nextSize = a->blockSize;
-    // m1->blockSize +=  METABLOCK_SIZE + a ->blockSize;
     m1->nextBlock = a->nextBlock;
     a->nextBlock->prevBlock = m1;
     m1->blockSize += METABLOCK_SIZE + nextSize;
     return 1;
 }
 
+/*
+ * returnLargeBlock : returns pointer to the memory block which has a size greater than or equal to the size available 
+ *                    in the page. If no block is available then new block is allocated by allocating new page.
+ *           Params : no of bytes the user wants.
+ */
 
 void* returnLargeBlock(size_t bytes) {
 
     int i=0,requiresPages;
     while(i<= largeAllocList.count && bytes <= largeAllocList.largeBlock[i].remainingSize)
         i++;
-    if(i >= largeAllocList.count && largeAllocList.largeBlock[0].ptr == NULL && largeAllocList.largeBlock[0].remainingSize == 0 && largeAllocList.largeBlock[0  ].offset == 0) {
-
+    if(i >= largeAllocList.count && largeAllocList.largeBlock[0].ptr == NULL && largeAllocList.largeBlock[0].remainingSize == 0 && largeAllocList.largeBlock[0].offset == 0) {
+        // if largeAlloclist is empty then new page is allocated according o the requirement.
         requiresPages = 4 > ((bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE) ? 4 : ((bytes+ METABLOCK_SIZE)/SYSTEM_PAGE_SIZE)+1;
-        // printf("The required pages are %d\n",requiresPages);
         largeAllocList.largeBlock[0].ptr = (meta_data_block)getPages(requiresPages);
         largeAllocList.largeBlock[0].offset  = 0;
         largeAllocList.largeBlock[0].remainingSize = bytes;
@@ -91,11 +97,9 @@ void* returnLargeBlock(size_t bytes) {
         i=0;
     }
     if(i <= largeAllocList.count) {
-
+        // Memory block with the required size is available
         meta_data_block mptr;
         mptr = largeAllocList.largeBlock[i].ptr;
-        printf("i is and mptr is %d and %d\n",i,mptr->blockSize);
-        printf("Pointer is %p and next pointer is %p\n",mptr,mptr->nextBlock);
         while(mptr->blockSize < bytes) {
             mptr = mptr -> nextBlock;
         }
@@ -104,7 +108,7 @@ void* returnLargeBlock(size_t bytes) {
         if(buf < (METABLOCK_SIZE+1024))
             return(void *)(mptr+1);
         else {
-
+            // spliting the block of memory only if it does not result into hard fragmentation.
             if(splitLargeBlock(mptr,bytes) == INT_MIN) {
                 // perror("Malloc failed\n");
                 return NULL;
@@ -117,6 +121,7 @@ void* returnLargeBlock(size_t bytes) {
 
     }
     else {
+        //no block of memory satisfy the request so allocate a new page for it 
         largeAllocList.count+=1;
         if(largeAllocList.count >= MAX_SIZE_FOR_LARGE_ALLOC) {
 
@@ -148,6 +153,10 @@ void* returnLargeBlock(size_t bytes) {
         }
 }
 
+/*
+ * isLargeAllocEmpty : to find whether the large allocated page is empty or not.
+ *        Returns TRUE if all the blocks are free and returns FALSE if there is atleast one block which is in use.
+ */
 
 int isLargeAllocPageEmpty(meta_data_block head) {
 
@@ -159,6 +168,10 @@ int isLargeAllocPageEmpty(meta_data_block head) {
     return FALSE;
 }
 
+/*
+ * removeLargeAllocPage : unmaps the pages if they are empty. This function is called by free() when it detected that 
+ *                         the whole page is empty.
+ */
 
 void removeLargeAllocPage(meta_data_block head) {
 
