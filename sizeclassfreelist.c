@@ -3,9 +3,9 @@
 
 sizeClass_free_list sizeClassFreeList[NUM_OF_CLASSES];
 
-void initSizeClassFreeList() {
 
-    
+// initSizeClassFreeList : Initializes the sizeclass freelist when it is called for th first time
+void initSizeClassFreeList() {
 
     for(int i =0;i<NUM_OF_CLASSES;i++) {
 
@@ -20,6 +20,11 @@ void initSizeClassFreeList() {
     
 }
 
+/*
+ * isSizeClassFreeListEmpty : to find whether the free-list is empty for a particular size-class 
+ *                  Return  : TRUE - if it empty and FALSE if vice versa
+ */
+
 int isSizeClassFreeListEmpty(int sizeclass) {
         for(int j=0;j<SIZECLASS_FREE_LIST_SIZE;j++) {
             if(sizeClassFreeList[sizeclass].l[j].blockPtr != NULL && sizeClassFreeList[sizeclass].l[j].blockSize != 0) {
@@ -29,18 +34,29 @@ int isSizeClassFreeListEmpty(int sizeclass) {
     return TRUE;
 }
 
+
+/*
+ * removeBlockfromSizeClassFreeList : Removes a memory block from the free-list , usually called by myMalloc during 
+ *                                    allocation of memory.
+ *                           Params : ptr to the memory block and the size of the block 
+ */
+
+
 void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size) {
     int i = 0;
+    //finding the corresponding size-classes
     while(size > classSizeArray[i])
         i++;
+    
     int j = 0;
     while(j<= sizeClassFreeList[i].rear && ptr != sizeClassFreeList[i].l[j].blockPtr) {
         j++;
     }
     if(j > sizeClassFreeList[i].rear) {
-        // perror("No block with the given pointer");
+        perror("No block with the given pointer");
         return;
     }
+    //swapping the memory block pointer wih the last element and then decreasing the rear position
     _sizeClass_free_list temp;
     temp = sizeClassFreeList[i].l[j];
     sizeClassFreeList[i].l[j] = sizeClassFreeList[i].l[sizeClassFreeList[i].rear];
@@ -50,6 +66,11 @@ void removeBlockfromSizeClassFreeList(meta_data_block ptr, int size) {
     sizeClassFreeList[i].rear -= 1;
 
 }
+
+/*
+ * addBlocktoSizeClassFreeList : Adds memory block to the corresponding size-class freelist. Called by the free() function
+ *                      Params : pointer to the memory block and the locatio of the memory block in the sizeclasslist
+ */
 
 void addBlocktoSizeClassFreeList(meta_data_block ptr, int size,int offset) {
 
@@ -69,6 +90,13 @@ void addBlocktoSizeClassFreeList(meta_data_block ptr, int size,int offset) {
     
 }
 
+/*
+ * removeAllFreeLitBlocksFromOffset : removes all the memory blocks from the list located at a particular page.
+ *                                    Called by the free() function when the whole page is unused in order to return 
+ *                                    it back to the kernel.
+ *                           Params : sizeclass and offset i.e. the location of the page in the sizeclasslist.
+ */
+
 void removeAllFreeListBlocksFromOffset(int sizeclass, int offset) {
 
     int i=0;
@@ -85,18 +113,13 @@ void removeAllFreeListBlocksFromOffset(int sizeclass, int offset) {
         }
         i++;
     }
-
-
-
-
-    // printf("**********************************PRinting free list after removing it ************************************************************\n");
-    // for(int i=0;i<SIZECLASS_FREE_LIST_SIZE;i++) {
-
-    //     printf("Free-list element at %d is %p\n",i,sizeClassFreeList[sizeclass].l[i].blockPtr);
-
-    // }
-    // printf("***********************************************************************************************************************************************\n");
 }
+
+/*
+ * getFreeBlockfromFreeList : returns memory block of the corresponding the sizeclass to the user. Called by malloc()
+ *                            when freelist is not empty.
+ *                   Params : number of bytes as requested from the user.
+ */
 
 meta_data_block getFreeBlockfromFreeList(size_t bytes) {
 
@@ -105,8 +128,8 @@ meta_data_block getFreeBlockfromFreeList(size_t bytes) {
         i++;
     meta_data_block ptr;
     ptr = sizeClassFreeList[i].l[0].blockPtr;
-        // printf("Size-class : %d \n",i);
-        // printf("Page no : %d \n",iter+1);
+    //removing it from the list as it will be used by the user.
     removeBlockfromSizeClassFreeList(sizeClassFreeList[i].l[0].blockPtr,sizeClassFreeList[i].l[0].blockSize);
     return ptr;
 }
+
