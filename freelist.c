@@ -8,6 +8,7 @@
 
 free_list freeList;
 
+// initFreeList : Initializes the freelist when called for the first time.
 void initFreeList(free_list *l1) {
 
     l1->size = FREE_LIST_SIZE;
@@ -20,6 +21,7 @@ void initFreeList(free_list *l1) {
     return;
 }
 
+// swapListElements : Helper function to swap two nodes of a heap 
 void swapListElements(free_list *l1,int i,int j) {
 
     _free_list temp;
@@ -28,6 +30,12 @@ void swapListElements(free_list *l1,int i,int j) {
     l1->list[i] = temp;
     return;
 }
+
+/*
+ * addBlocktoFreeList : adds memory block to the heap of freelist. Returns 1 on success and INT_MIN upon failure.
+ *             Params : ptr       : pointer to the memory block that needs to be added. 
+ */
+
 
 int addBlocktoFreeList(free_list *l1,meta_data_block ptr) {
 
@@ -48,6 +56,10 @@ int addBlocktoFreeList(free_list *l1,meta_data_block ptr) {
     return 1;
 }
 
+/*
+ * heapifyFreeList : Helper function to perform the heapify operation in the freelist heap
+ */
+
 void heapifyFreeList() {
 
 
@@ -65,6 +77,9 @@ void heapifyFreeList() {
 }
 
 
+/*
+ * removBlockfromFreeList : Works as the remove functionlality of the heap i.e. removes the first element from the list
+ */
 void removeBlockfromFreeList(free_list *l1) {
 
     if(l1->rear == -1)
@@ -100,6 +115,13 @@ void removeBlockfromFreeList(free_list *l1) {
 
 
 
+/*
+ * deleteBlockfromFreeList : used to remove any element from the freelist. Called by malloc() while allocating memory
+ *                         the freelist.
+ *                 Params :m1 : pointer to the memory block
+ *                       size : size of the memory block
+ * Returns : 1 if success or INT_MIN on failure.
+ */
 
 int deleteBlockfromFreeList(free_list *l1,int size , meta_data_block m1) {
 
@@ -121,7 +143,7 @@ int deleteBlockfromFreeList(free_list *l1,int size , meta_data_block m1) {
     return 1;
 }
 
-
+// sortFreeList : helper function to sort the heap free list.
 int sortFreeList(free_list *l1) {
 
     heapifyFreeList();
@@ -143,31 +165,3 @@ int sortFreeList(free_list *l1) {
 }
 
 
-// void heapifyFreeList(free_list *l1,int i) {
-
-
-//     if(l1->rear == 0)
-//         return;
-//     i=0;
-//     int max;
-//     while(i<= l1->rear) {
-
-//         int left = GETLCHILD(i);
-//         int right = GETRCHILD(i);
-//         if(left > l1->rear)
-//             return;
-//         if(right > l1->rear) {
-//             if(l1->list[i].blockSize < l1->list[left].blockSize)
-//                 swapListElements(l1,i,left);
-//             return;
-//         }
-
-//         if(l1->list[left].blockSize > l1->list[right].blockSize)
-//             max = left;
-//         else 
-//             max = right;
-//         swapListElements(l1,i,max);
-//         i = max;
-//     }
-//     return;
-// }
