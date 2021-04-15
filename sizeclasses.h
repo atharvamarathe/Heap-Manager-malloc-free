@@ -1,7 +1,7 @@
 #ifndef SIZECLASSES_H
 #define SIZECLASSES_H
 
-#include "mm.h"
+#include "memoryallocator.h"
 #include <stddef.h>
 #define STRINGIFY(a,b) a ## b
 #define GETCLASSINDEX(a) STRINGIFY(CLASS_,a)

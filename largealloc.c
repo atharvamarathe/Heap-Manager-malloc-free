@@ -34,7 +34,13 @@ int splitLargeBlock(meta_data_block mptr, size_t bytes) {
         return INT_MIN;
     }
 
-    meta_data_block temp=NULL,next=NULL;
+    meta_data_block temp=NULL,next=NULL,ptr=NULL;
+
+
+    if(mptr->nextBlock != NULL)
+        ptr = mptr->nextBlock->nextBlock;
+    else 
+        ptr = NULL;
     size_t size = mptr->blockSize;
     temp = mptr;
     temp->blockSize = bytes;
@@ -42,7 +48,7 @@ int splitLargeBlock(meta_data_block mptr, size_t bytes) {
 
     next = temp->nextBlock;
     next->prevBlock = temp;
-    next->nextBlock = NULL;
+    next->nextBlock = ptr;
     next->blockSize = (size - (bytes + METABLOCK_SIZE));
     next->isFree = TRUE;
     next->headPtr = temp->headPtr;
@@ -164,8 +170,9 @@ int isLargeAllocPageEmpty(meta_data_block head) {
     while(iter!= NULL) {
         if(iter->isFree == FALSE)
             return FALSE;
+        iter = iter -> nextBlock;
     }
-    return FALSE;
+    return TRUE;
 }
 
 /*
