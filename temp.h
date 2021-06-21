@@ -2,27 +2,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define MAX_SIZECLASSES 42
+
 typedef uint64_t statusBits;
 typedef struct meta_data_block_ {
-
-    struct meta_data_block_ *nextBlock;
-
-
-    
-         
-
+    struct meta_data_block_ *headPtr;
 }meta_data_block;
 
 typedef struct PageHeader {
-
-    statusBits  FreeBlocks;
+    statusBits  FreeBlocks[8];
     meta_data_block *headBlock;
-
 }PageHeader;
-typedef struct sizeClassList {
-    Pageheader headptr;
-    struct sizeClassList *next;
 
+typedef struct sizeClassList {
+    PageHeader headptr;
+    struct sizeClassList *next;
 }sizeClassList;
 
 
