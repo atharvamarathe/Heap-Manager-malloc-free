@@ -15,16 +15,29 @@
  * headPtr              : Pointer to the starting address of the corresponding memory page.
  */
 
+// typedef struct meta_data_block_ {
+
+//     int isFree;
+//     uint32_t blockSize;
+//     struct meta_data_block_ *prevBlock; 
+//     struct meta_data_block_ *nextBlock;
+//     struct meta_data_block_ *headPtr;
+// }meta_data_block_;
+
+// typedef meta_data_block_ * meta_data_block;
+
+typedef uint64_t statusBits;
 typedef struct meta_data_block_ {
+    void *page_header;
+}meta_data_block;
 
-    int isFree;
-    uint32_t blockSize;
-    struct meta_data_block_ *prevBlock;
-    struct meta_data_block_ *nextBlock;
-    struct meta_data_block_ *headPtr;
-}meta_data_block_;
+struct PageHeader_ {
+    statusBits  FreeBlocks[8];
+    meta_data_block *headBlock;
+};
 
-typedef meta_data_block_ * meta_data_block;
+typedef struct PageHeader_* PageHeader;
+
 
 
 #define METABLOCK_SIZE sizeof(meta_data_block_)
@@ -32,13 +45,13 @@ typedef meta_data_block_ * meta_data_block;
 #define FALSE 0
 #define NUMBER_OF_BINS_PER_PAGE SYSTEM_PAGE_SIZE/(BIN_SIZE+METABLOCK_SIZE)
 
-int isPageEmpty(meta_data_block head);
+int isPageEmpty(PageHeader head);
 
 void * getPages(int units);
 
 void freePages(void* vm_page,int units);
 
-meta_data_block getFreeBlock(meta_data_block head);
+int getFreeBlock(PageHeader head,int size_class);
 
 void myFree(void *ptr);
 

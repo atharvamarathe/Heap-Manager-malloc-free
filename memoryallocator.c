@@ -57,14 +57,20 @@ void freePages(void* vm_page,int units) {
  */
 
 
-meta_data_block getFreeBlock(meta_data_block head) {
-
-    meta_data_block a;
-    a= head;
-    while(a->nextBlock != NULL && a->isFree == FALSE) {
-        a = a->nextBlock;
+int getFreeBlock(PageHeader head,int size_class) {
+    for(int i = 1;i<=8;i++) {
+        int b = 1;
+        for(int k =0;k<64;k++) {
+            if(b<<k & head->FreeBlocks[i])
+                return i*(k+1);
+        }
     }
-    return a;
+    // meta_data_block a;
+    // a= head;
+    // while(a->nextBlock != NULL && a->isFree == FALSE) {
+    //     a = a->nextBlock;
+    // }
+    // return a;
     
 }
 

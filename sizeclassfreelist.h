@@ -15,7 +15,7 @@
 
 typedef struct _sizeClass_free_list {
 
-    meta_data_block blockPtr;
+    meta_data_block* blockPtr;
     int blockSize;
     int offset;
 }_sizeClass_free_list;
@@ -37,7 +37,7 @@ extern sizeClass_free_list sizeClassFreeList[NUM_OF_CLASSES];
 
 void initSizeClassFreeList();
 
-meta_data_block getFreeBlockfromFreeList(size_t bytes);
+meta_data_block* getFreeBlockfromFreeList(size_t bytes);
 
 void addBlocktoSizeClassFreeList(meta_data_block ptr, int size,int offset);
 

@@ -64,29 +64,43 @@
  *          availableBins : Number of memory blocks available for use
  */
 
-typedef struct page_list {
+// typedef struct page_list {
 
-    meta_data_block head;
-    int availableBins;
-}page_list;
+//     meta_data_block head;
+//     int availableBins;
+// }page_list;
+
+
+// typedef struct sizeClassList {
+//     PageHeader headptr;
+//     struct sizeClassList *next;
+// }sizeClassList;
+
+// typedef struct sizeClassList* sizeClassList;
+
+typedef struct memoryHeap{
+    PageHeader classes[42];
+}memoryHeap;
+
+extern memoryHeap Memory;
 
 
 void initSizeClassList();
 
-void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages);
+void createSizeClassBinsList(meta_data_block *head,int binSize,int no_of_pages,PageHeader header);
 
-void createSizeClassPage(int sizeclass,int offset);
+void createSizeClassPage(int sizeclass);
 
-meta_data_block getPageforAllocation(int sizeclass);
+meta_data_block* getPageforAllocation(int sizeclass);
 
-int isSizeClassPageEmpty(int sizeclass, int offset);
+int isSizeClassPageEmpty(PageHeader head);
 
-void removeEmptySizeClassPage(int sizeclass, int offset);
+void removeEmptySizeClassPage(int sizeclass, PageHeader page);
 
 extern int classSizeArray[NUM_OF_CLASSES];
 
-static page_list pageList[MAX_PAGES];
+// static page_list pageList[MAX_PAGES];
 
-extern page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
+// extern page_list sizeClassList[NUM_OF_CLASSES][MAX_PAGES];
 
 #endif
