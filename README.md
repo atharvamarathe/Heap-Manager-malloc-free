@@ -5,5 +5,3 @@ This is a implementation of Malloc, Calloc, Realloc and Free functions used in C
 ### NOTE : This is only for Linux Operating systems like Ubuntu. It does not work for Windows Applications.
 
 
-# Basic Structure :
-                 The basic idea of my design is the use of size-classes which is helps in reducing hard Memory fragmentations which are caused because of lot of memory spliting and memory.
